@@ -4,12 +4,10 @@ import com.example.GitHubActions.WASClient.WASClient;
 import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
-@Service
+
 public class QualysWASScanStatusService {
     private static final Logger logger = LoggerFactory.getLogger(QualysWASScanStatusService.class);
     private final static int TIMEOUT = (60 * 5) + 50; //5Hrs 50Minuts
@@ -21,7 +19,6 @@ public class QualysWASScanStatusService {
     }
 
     /**
-     *
      * @param scanId
      * @return
      */
@@ -34,8 +31,8 @@ public class QualysWASScanStatusService {
 
         try {
             while ((status = client.getScanFinishedStatus(scanId)) == null) {
-                long endTime = stopwatch.stop().elapsed(TimeUnit.MILLISECONDS);
-                if (endTime > timeoutInMillis) {
+                long endTime = System.currentTimeMillis();
+                if ((endTime - startTime) > timeoutInMillis) {
                     logger.info(new Timestamp(System.currentTimeMillis()) + " Failed to get scan result; timeout of " + TIMEOUT + " minutes reached.");
                     throw new Exception("Timeout reached.");
                 } else {
