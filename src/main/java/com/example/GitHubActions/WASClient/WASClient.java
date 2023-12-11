@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.logging.Logger;
-@Component
+
 public class WASClient extends WASBaseClient {
     HashMap<String, String> apiMap;
     Logger logger = Logger.getLogger(WASClient.class.getName());

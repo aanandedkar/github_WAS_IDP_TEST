@@ -49,6 +49,8 @@ public class QualysWASScanBuilder {
     private String cancelOptions;
     private String cancelHours;
     private boolean isFailOnSevereVulns;
+    private boolean severityCheck;
+    private int severityLevel;
     private int severity1Limit;
     private int severity2Limit;
     private int severity3Limit;
@@ -86,20 +88,45 @@ public class QualysWASScanBuilder {
         this.optionProfileId = environment.getProperty("OPTION_PROFILE_ID", "");
         this.cancelOptions = environment.getProperty("CANCEL_OPTION", "");
         this.cancelHours = environment.getProperty("CANCEL_HOURS", "");
-        this.severity1Limit = Integer.parseInt(environment.getProperty("SEVERITY_ONE_LIMIT", "0"));
-        this.severity2Limit = Integer.parseInt(environment.getProperty("SEVERITY_TWO_LIMIT", "0"));
-        this.severity3Limit = Integer.parseInt(environment.getProperty("SEVERITY_THREE_LIMIT", "0"));
-        this.severity4Limit = Integer.parseInt(environment.getProperty("SEVERITY_FOUR_LIMIT", ""));
-        this.severity5Limit = Integer.parseInt(environment.getProperty("SEVERITY_FIVE_LIMIT", "0"));
-        this.isSev1Vulns = Boolean.parseBoolean(environment.getProperty("IS_SEVERITY_ONE", "false"));
-        this.isSev2Vulns = Boolean.parseBoolean(environment.getProperty("IS_SEVERITY_TWO", "false"));
-        this.isSev3Vulns = Boolean.parseBoolean(environment.getProperty("IS_SEVERITY_THREE", "false"));
-        this.isSev4Vulns = Boolean.parseBoolean(environment.getProperty("IS_SEVERITY_FOUR", "false"));
-        this.isSev5Vulns = Boolean.parseBoolean(environment.getProperty("IS_SEVERITY_FIVE", "false"));
+        this.severityCheck = Boolean.parseBoolean(environment.getProperty("SEVERITY_CHECK", "false"));
+        this.severityLevel = Integer.parseInt(environment.getProperty("SEVERITY_LEVEL", "0"));
         this.isFailOnQidFound = Boolean.parseBoolean(environment.getProperty("IS_FAIL_ON_QID_FOUND", "false"));
         this.qidList = environment.getProperty("QID_LIST", "");
         this.isFailOnScanError = Boolean.parseBoolean(environment.getProperty("FAIL_ON_SCAN_ERROR", "false"));
+        this.severity1Limit = 0;
+        this.severity2Limit = 0;
+        this.severity3Limit = 0;
+        this.severity4Limit = 0;
+        this.severity5Limit = 0;
         initWASClient();
+        if (severityCheck) {
+            assignSeverities(severityLevel);
+        }
+    }
+
+    private void assignSeverities(int severityLevel) {
+        switch (severityLevel) {
+            case 1: {
+                this.isSev1Vulns = true;
+                this.severity1Limit = 1;
+            }
+            case 2: {
+                this.isSev2Vulns = true;
+                this.severity2Limit = 1;
+            }
+            case 3: {
+                this.isSev3Vulns = true;
+                this.severity3Limit = 1;
+            }
+            case 4: {
+                this.isSev4Vulns = true;
+                this.severity4Limit = 1;
+            }
+            case 5: {
+                this.isSev5Vulns = true;
+                this.severity5Limit = 1;
+            }
+        }
     }
 
     private void initWASClient() {
@@ -227,7 +254,7 @@ public class QualysWASScanBuilder {
                     logger.info("Qualys task - Fetching scan result");
                     JsonObject result = resultParser.fetchScanResult(apiServer, qualysUsername, qualysPasssword, scanId);
                     if (result != null) {
-                        JsonObject evaluationResult =  evaluateFailurePolicy(result);
+                        JsonObject evaluationResult = evaluateFailurePolicy(result);
                         buildPassed = evaluationResult.get("passed").getAsBoolean();
 
                         if (!buildPassed) {
