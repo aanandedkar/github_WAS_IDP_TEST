@@ -7,6 +7,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,7 +19,7 @@ import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.logging.Logger;
-
+@Component
 public class WASClient extends WASBaseClient {
     HashMap<String, String> apiMap;
     Logger logger = Logger.getLogger(WASClient.class.getName());

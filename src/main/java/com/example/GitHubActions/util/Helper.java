@@ -1,29 +1,18 @@
 package com.example.GitHubActions.util;
 
-import com.example.GitHubActions.WASAuth.WASAuth;
-import com.example.GitHubActions.WASClient.WASClient;
-import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.example.GitHubActions.WASClient.QualysWASResponse;
+import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
+@Component
 public class Helper {
-    private static final Logger logger = LoggerFactory.getLogger(Helper.class);
-    private final static int TIMEOUT = (60 * 5) + 50; //5Hrs 50Minuts
-    private final static int INTERVAL = 5; //5 minuts
-
-    public Helper() {
-
-    }
-
     public static final Map<String, Map<String, String>> platformsList;
+    private static final Logger logger = LoggerFactory.getLogger(Helper.class);
 
     static {
         Map<String, Map<String, String>> aList = new LinkedHashMap<String, Map<String, String>>();
@@ -93,66 +82,22 @@ public class Helper {
         platformsList = Collections.unmodifiableMap(aList);
     }
 
-    private WASClient getWASClient(String server, String username, String password) {
-        WASAuth auth = new WASAuth();
-        auth.setWasCredentials(server, username, password);
-        return new WASClient(auth, System.out);
-    }
+    public Helper() {
 
-    public void testConnection(String server, String username, String password) throws Exception {
-        WASClient client = getWASClient(server, username, password);
-        client.testConnection();
-        logger.info("Connection Test Successful!");
-    }
-
-    public String getStatus(String server, String username, String password, String scanId) {
-        long startTime = System.currentTimeMillis();
-        long timeoutInMillis = TimeUnit.MINUTES.toMillis(TIMEOUT);
-        long intervalInMillis = TimeUnit.MINUTES.toMillis(INTERVAL);
-        String status = null;
-
-        try {
-            WASClient client = getWASClient(server, username, password);
-            while ((status = client.getScanFinishedStatus(scanId)) == null) {
-                long endTime = System.currentTimeMillis();
-                if ((endTime - startTime) > timeoutInMillis) {
-                    logger.info(new Timestamp(System.currentTimeMillis()) + " Failed to get scan result; timeout of " + TIMEOUT + " minutes reached.");
-                    throw new Exception("Timeout reached.");
-                } else {
-                    try {
-                        logger.info(new Timestamp(System.currentTimeMillis()) + " Waiting for " + INTERVAL + " minute(s) before making next attempt for scanResult of scanId:" + scanId + "...");
-                        Thread.sleep(intervalInMillis);
-                    } catch (Exception ex) {
-                        logger.info(ex.getMessage());
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            logger.info("Exception: " + ex.getMessage());
-        }
-
-        return status;
-    }
-
-    public JsonObject getScanResult(String server, String username, String password, String scanId) {
-        WASClient client = getWASClient(server, username, password);
-        QualysWASResponse qualysWASResponse = client.getScanResult(scanId);
-        JsonObject scanResult = qualysWASResponse.response;
-        return scanResult;
     }
 
     public static int setTimeoutInMinutes(String timeoutType, int defaultTimeoutInMins, String timeout) {
-        if (!(timeout == null || timeout.isEmpty()) ){
+        if (!(timeout == null || timeout.isEmpty())) {
             try {
                 //if timeout is a regex of form 2*60*60 seconds, calculate the timeout in seconds
                 String[] numbers = timeout.split("\\*");
                 int timeoutInMins = 1;
-                for (int i = 0; i<numbers.length ; ++i) {
+                for (int i = 0; i < numbers.length; ++i) {
                     timeoutInMins *= Long.parseLong(numbers[i]);
                 }
                 return timeoutInMins;
-            } catch(Exception e) {
-                logger.error("Invalid " + timeoutType + " time value. Cannot parse -"+e.getMessage());
+            } catch (Exception e) {
+                logger.error("Invalid " + timeoutType + " time value. Cannot parse -" + e.getMessage());
                 logger.error("Using default period of " + (timeoutType.equals("vulnsTimeout") ? "60*24" : defaultTimeoutInMins) + " minutes for " + timeoutType + ".");
             }
         }

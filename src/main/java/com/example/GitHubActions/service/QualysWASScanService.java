@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +48,7 @@ public class QualysWASScanService {
     private boolean failOnScanError;
 
     public String launchScan() {
-        JsonObject result = new JsonObject();
-        JsonObject requestData = new JsonObject();
+          JsonObject requestData = new JsonObject();
         try {
             if (scanType == null || scanType.isEmpty()) {
                 throw new Exception("Scan Type - Required parameter to launch scan is missing.");
@@ -99,7 +97,7 @@ public class QualysWASScanService {
             }
 
             wasScan.add("target", webApp);
-            data.add("wasScan", wasScan);
+            data.add("WasScan", wasScan);
             requestObj.add("data", data);
             requestData.add("ServiceRequest", requestObj);
 
@@ -111,7 +109,7 @@ public class QualysWASScanService {
             }
 
             QualysWASResponse response = apiClient.launchWASScan(requestData);
-            result = response.response;
+            JsonObject result = response.response;
             //parse result
             JsonElement respEl = result.get("ServiceResponse");
             JsonObject respObj = respEl.getAsJsonObject();

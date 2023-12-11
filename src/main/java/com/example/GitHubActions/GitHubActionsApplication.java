@@ -24,11 +24,11 @@ public class GitHubActionsApplication {
 
         ConfigurableApplicationContext ctx = SpringApplication.run(GitHubActionsApplication.class, args);
         Environment environment = ctx.getEnvironment();
-        String username = System.getenv("USERNAME");
-        String password = System.getenv("PASSWORD");
-        String server = System.getenv("SERVER");
-        boolean useProxy = Boolean.parseBoolean(System.getenv("USE_PROXY"));
-        String scanId = System.getenv("SCAN_ID");
+        String username = environment.getProperty("QUALYS_USERNAME");
+        String password = environment.getProperty("QUALYS_PASSWORD");
+        String server = environment.getProperty("API_SERVER");
+        boolean useProxy = Boolean.parseBoolean(environment.getProperty("USE_PROXY"));
+        String scanId = environment.getProperty("SCAN_ID");
 
         logger.info("[Username: " + username + "]");
         logger.info("[Password: " + password + "]");
@@ -36,20 +36,9 @@ public class GitHubActionsApplication {
         logger.info("[Use-proxy: " + useProxy + "]");
         logger.info("[Scan-id: " + scanId + "]");
 
-//        testConnection(server, username, password);
-        helper.testConnection("https://qualysapi.qualys.com", "quays_pg19", "o34kLasNpg");
-//        String status = helper.getStatus("https://qualysapi.qualys.com", "quays_pg19", "o34kLasNpg", "38501738");
-//
-//        if (status.equalsIgnoreCase("finished")) {
-//            JsonObject scanResult = helper.getScanResult("https://qualysapi.qualys.com", "quays_pg19", "o34kLasNpg", "38501738");
-//            logger.info(scanResult.toString());
-//        } else if (status.equalsIgnoreCase("canceled")) {
-//            throw new Exception("The scan(ScanId: "+ scanId + ") has been canceled.");
-//        }else if (status.equalsIgnoreCase("error")) {
-//            throw new Exception("The scan(ScanId: "+scanId+") is not completed due to an error.");
-//        }
-
         QualysWASScanBuilder builder = new QualysWASScanBuilder(environment);
+        logger.info(builder.toString());
+        builder.launchWebApplicationScan();
 
 //        logger.info(status);
         ctx.getBean(GitHubActionsApplication.class);
