@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -102,5 +105,28 @@ public class Helper {
             }
         }
         return defaultTimeoutInMins;
+    }
+
+    public static void dumpDataIntoFile(String data, String fileName) {
+        String dirPath = "outputs";
+        try {
+            File dir = new File(dirPath);
+            if (!dir.exists() || !dir.isDirectory()) {
+                boolean isDirCreated = dir.mkdirs();
+                if (!isDirCreated) {
+                    logger.info("Error while creating directory: " + dirPath);
+
+                }
+            }
+            String filePath = dirPath + "/" + fileName;
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+                writer.write(data);
+                logger.info("Data dumped at location: " + filePath);
+            } catch (Exception ex) {
+                logger.info("Exception while dumping the data at location: " + filePath + " Reason - " + ex.getMessage());
+            }
+        } catch (Exception ex) {
+            logger.error("Something went wrong: " + ex.getMessage());
+        }
     }
 }
