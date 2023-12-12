@@ -98,7 +98,7 @@ public class QualysWASScanResultParser {
         }
     }
 
-    public JsonObject fetchScanResult(String server, String username, String password, String scanId) {
+    public JsonObject fetchScanResult(String scanId) {
         QualysWASResponse qualysWASResponse = client.getScanResult(scanId);
         JsonObject scanResult = qualysWASResponse.response;
         return scanResult;
