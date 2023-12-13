@@ -33,9 +33,9 @@ public class QualysWASScanBuilder {
     private String apiServer;
     private String qualysUsername;
     private String qualysPasssword;
-    private boolean useProxy = false;
+    private boolean useProxy;
     private String proxyServer;
-    private int proxyPort = PROXY_PORT;
+    private int proxyPort;
     private String proxyUsername;
     private String proxyPassword;
     private String webAppId;
@@ -63,7 +63,7 @@ public class QualysWASScanBuilder {
     private boolean isFailOnQidFound;
     private String qidList;
     private String exclude;
-    private boolean isFailOnScanError = true;
+    private boolean isFailOnScanError;
     private String pollingInterval;
     private String vulnsTimeout;
     private boolean waitForResult;
@@ -250,14 +250,16 @@ public class QualysWASScanBuilder {
             String scanId = service.launchScan();
             if (scanId != null && !scanId.isEmpty()) {
                 String message1 = "Scan successfully launched with scan id: " + scanId;
-                String message2 = "To check scan result, please follow the url: \" + portalUrl + \"/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
+                String message2 = "Please switch to WAS Classic UI and Check for report...";
+                String message3 = "To check scan report, please follow the url: \" + portalUrl + \"/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
                 logger.info(message1);
                 logger.info(message2);
+                logger.info(message3);
                 if (waitForResult) {
                     logger.info("Qualys task - Fetching scan finished status");
                     getScanFinishedStatus(scanId);
                     logger.info("Scan finished status fetched successfully");
-                    boolean buildPassed = true;
+                    boolean buildPassed;
                     if (isFailConditionConfigured) {
                         Gson gson = new Gson();
                         QualysWASScanResultParser resultParser = new QualysWASScanResultParser(gson.toJson(getCriteriaAsJsonObject()), client);
@@ -277,7 +279,7 @@ public class QualysWASScanBuilder {
                         logger.info("Scan finished status fetched successfully");
                     }
                 } else {
-                    String message = message1 + "\n" + message2;
+                    String message = message1 + "\n" + message2 + "\n" + message3;
                     Helper.dumpDataIntoFile(message, "LaunchScan.txt");
                 }
             } else {
@@ -313,8 +315,8 @@ public class QualysWASScanBuilder {
         logger.info(status);
     }
 
-    private String getBuildFailureMessages(JsonObject result) throws Exception {
-        List<String> failureMessages = new ArrayList<String>();
+    private String getBuildFailureMessages(JsonObject result) {
+        List<String> failureMessages = new ArrayList<>();
         if (result.has("qids") && result.get("qids") != null && !result.get("qids").isJsonNull()) {
             JsonObject qidsObj = result.get("qids").getAsJsonObject();
             boolean qidsPass = qidsObj.get("result").getAsBoolean();
@@ -324,16 +326,16 @@ public class QualysWASScanBuilder {
             }
         }
 
-        String sevConfigured = "\nConfigured : ";
-        String sevFound = "\nFound : ";
+        StringBuilder sevConfigured = new StringBuilder("\nConfigured : ");
+        StringBuilder sevFound = new StringBuilder("\nFound : ");
         boolean severityFailed = false;
         for (int i = 1; i <= 5; i++) {
             if (result.has("severities") && result.get("severities") != null && !result.get("severities").isJsonNull()) {
                 JsonObject sevObj = result.get("severities").getAsJsonObject();
                 JsonObject severity = sevObj.get("" + i).getAsJsonObject();
                 if (severity.has("configured") && !severity.get("configured").isJsonNull() && severity.get("configured").getAsInt() != -1) {
-                    sevFound += "Severity " + i + ": " + (severity.get("found").isJsonNull() ? 0 : severity.get("found").getAsString()) + ";";
-                    sevConfigured += "Severity " + i + ">" + severity.get("configured").getAsString() + ";";
+                    sevFound.append("Severity ").append(i).append(": ").append(severity.get("found").isJsonNull() ? 0 : severity.get("found").getAsString()).append(";");
+                    sevConfigured.append("Severity ").append(i).append(">").append(severity.get("configured").getAsString()).append(";");
                     boolean sevPass = severity.get("result").getAsBoolean();
                     if (!sevPass) {
                         severityFailed = true;
