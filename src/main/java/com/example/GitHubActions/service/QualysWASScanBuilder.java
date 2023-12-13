@@ -249,8 +249,10 @@ public class QualysWASScanBuilder {
             logger.info("Qualys task - Started Launching web app scanning with WAS");
             String scanId = service.launchScan();
             if (scanId != null && !scanId.isEmpty()) {
-                String message = "Scan successfully launched with scan id: " + scanId;
-                logger.info(message);
+                String message1 = "Scan successfully launched with scan id: " + scanId;
+                String message2 = "To check scan result, please follow the url: \" + portalUrl + \"/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
+                logger.info(message1);
+                logger.info(message2);
                 if (waitForResult) {
                     logger.info("Qualys task - Fetching scan finished status");
                     getScanFinishedStatus(scanId);
@@ -261,7 +263,8 @@ public class QualysWASScanBuilder {
                         QualysWASScanResultParser resultParser = new QualysWASScanResultParser(gson.toJson(getCriteriaAsJsonObject()), client);
                         logger.info("Qualys task - Fetching scan result");
                         JsonObject result = resultParser.fetchScanResult(scanId);
-                        Helper.dumpDataIntoFile(gson.toJson(result), "LaunchScanResult.json");
+                        String fileName = "Qualys_Wasscan_" + scanId;
+                        Helper.dumpDataIntoFile(gson.toJson(result), fileName);
                         if (result != null) {
                             JsonObject evaluationResult = evaluateFailurePolicy(result);
                             buildPassed = evaluationResult.get("passed").getAsBoolean();
@@ -274,7 +277,7 @@ public class QualysWASScanBuilder {
                         logger.info("Scan finished status fetched successfully");
                     }
                 } else {
-                    message += "\nTo check scan result, please follow the url: " + portalUrl + "/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
+                    String message = message1 + "\n" + message2;
                     Helper.dumpDataIntoFile(message, "LaunchScan.txt");
                 }
             } else {
