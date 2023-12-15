@@ -157,7 +157,7 @@ public class QualysWASScanBuilder {
             } else {
                 List<String> qids = new ArrayList<>(List.of(this.qidList.split(",")));
                 qids.replaceAll(String::trim);
-                if (this.exclude != null){
+                if (this.exclude != null) {
                     String[] excludeQids = this.exclude.split(",");
                     qids.removeAll(List.of(excludeQids));
                 }
@@ -265,9 +265,13 @@ public class QualysWASScanBuilder {
                         QualysWASScanResultParser resultParser = new QualysWASScanResultParser(gson.toJson(getCriteriaAsJsonObject()), client);
                         logger.info("Qualys task - Fetching scan result");
                         JsonObject result = resultParser.fetchScanResult(scanId);
-                        String fileName = "Qualys_Wasscan_" + scanId;
-                        Helper.dumpDataIntoFile(gson.toJson(result), fileName);
                         if (result != null) {
+                            String fileName = "Qualys_Wasscan_" + scanId;
+                            JsonObject data = result;
+                            data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().get("stats").getAsJsonObject().remove("igs").getAsJsonObject();
+
+                            Helper.dumpDataIntoFile(gson.toJson(data), fileName);
+
                             JsonObject evaluationResult = evaluateFailurePolicy(result);
                             buildPassed = evaluationResult.get("passed").getAsBoolean();
 
