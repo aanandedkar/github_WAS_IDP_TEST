@@ -284,7 +284,8 @@ public class QualysWASScanBuilder {
                     }
                 } else {
                     String message = message1 + "\n" + message2 + "\n" + message3;
-                    Helper.dumpDataIntoFile(message, "LaunchScan.txt");
+                    String fileName = "Qualys_Wasscan_" + webAppId + ".txt";
+                    Helper.dumpDataIntoFile(message, fileName);
                 }
             } else {
                 logger.info("API Error - Could not launch new scan");
