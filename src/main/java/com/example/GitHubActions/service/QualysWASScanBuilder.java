@@ -268,7 +268,7 @@ public class QualysWASScanBuilder {
                         if (result != null) {
                             String fileName = "Qualys_Wasscan_" + scanId;
                             JsonObject data = result;
-                            data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().get("stats").getAsJsonObject().remove("igs").getAsJsonObject();
+                            data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().remove("igs").getAsJsonObject();
 
                             Helper.dumpDataIntoFile(gson.toJson(data), fileName);
 
