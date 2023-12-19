@@ -1,2 +1,0 @@
-Scan successfully launched with scan id: 38654765
-To check scan result, please follow the url: https://qualysguard.qualys.com/portal-front/module/was/#forward=/module/was/&scan-report=38654765

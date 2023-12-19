@@ -1,9 +1,10 @@
-name: Qualys WAS Scanner For GitHub Demo
+name: Qualys WAS Scan GitHub Actions
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -41,8 +42,8 @@ jobs:
       - name: Archive JAR Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: GitHubActions-Artifact
-          path: target/GitHubActions-0.0.1-SNAPSHOT.jar
+          name: GitHub-Action-QWas-Artifact
+          path: target/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
   
   run:
     runs-on: ubuntu-latest
@@ -60,42 +61,40 @@ jobs:
       - name: Download JAR Artifact
         uses: actions/download-artifact@v3
         with:
-          name: GitHubActions-Artifact
+          name: GitHub-Action-QWas-Artifact
           path: ./
           
-      - name: Checkout config repository
-        uses: actions/checkout@v3
-        with:
-          repository: TheLogicalNights/config-repo
-          ref: main
-          path: src/main/resources/
-          token: ${{ secrets.ACCESS_TOKEN }}
-      
-      - name: Read configuration file
-        id: read-config
-        run: |
-          CONFIG=$(cat src/main/resources/config.json)
-          echo "USE_PROXY=$(echo "$CONFIG" | jq -r '.params.useProxy')" >> $GITHUB_ENV
-          echo "USERNAME=$(echo "$CONFIG" | jq -r '.params.username')" >> $GITHUB_ENV
-          echo "PASSWORD=$(echo "$CONFIG" | jq -r '.params.password')" >> $GITHUB_ENV
-          echo "SERVER=$(echo "$CONFIG" | jq -r '.params.server')" >> $GITHUB_ENV
-          echo "SCAN_ID=$(echo "$CONFIG" | jq -r '.params.scanId')" >> $GITHUB_ENV
-        shell: bash
-      
-      #      - name: Use secrets and variables from config
-      #        run: |
-      #          # Use the values in your workflow
-      #          echo "USE_PROXY: ${USE_PROXY}"
-      #          echo "USERNAME: ${USERNAME}"
-      #          echo "PASSWORD: ${PASSWORD}"
-      #          echo "SERVER: ${SERVER}"
-      #        shell: bash
-      
       - name: Run Spring Boot App
-        run: java -jar ./GitHubActions-0.0.1-SNAPSHOT.jar
+        run: java -jar ./GitHubActionsQWas-0.0.1-SNAPSHOT.jar
         env:
-          USE_PROXY: ${{ env.USE_PROXY }}
-          USERNAME: ${{ env.USERNAME }}
-          PASSWORD: ${{ env.PASSWORD }}
-          SERVER: ${{ env.SERVER }}
-          SCAN_ID: ${{ env.SCAN_ID }}
+          PLATFORM: ${{ vars.PLATFORM }}
+          API_SERVER: ${{ secrets.API_SERVER }}
+          QUALYS_USERNAME: ${{ secrets.QUALYS_USERNAME }}
+          QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
+          USE_PROXY: ${{ vars.USE_PROXY }}
+          PROXY_SERVER: ${{ secrets.PROXY_SERVER }}
+          PROXY_PORT: ${{ vars.PROXY_PORT }}
+          PROXY_USERNAME: ${{ secrets.PROXY_USERNAME }}
+          PROXY_PASSWORD: ${{ secrets.PROXY_PASSWORD }}
+          WEBAPP_ID: ${{ vars.WEBAPP_ID }}
+          SCAN_NAME: ${{ vars.SCAN_NAME }}
+          SCAN_TYPE: ${{ vars.SCAN_TYPE }}
+          AUTH_RECORD: ${{ vars.AUTH_RECORD }}
+          AUTH_RECORD_ID: ${{ vars.AUTH_RECORD_ID }}
+          OPTION_PROFILE: ${{ vars.OPTION_PROFILE }}
+          OPTION_PROFILE_ID: ${{ vars.OPTION_PROFILE_ID }}
+          CANCEL_OPTION: ${{ vars.CANCEL_OPTION }}
+          CANCEL_HOURS: ${{ vars.CANCEL_HOURS }}
+          SEVERITY_CHECK: ${{ vars.SEVERITY_CHECK }}
+          SEVERITY_LEVEL: ${{ vars.SEVERITY_LEVEL }}
+          IS_FAIL_ON_QID_FOUND: ${{ vars.IS_FAIL_ON_QID_FOUND }}
+          QID_LIST: ${{ vars.QID_LIST }}
+          EXCLUDE: ${{ vars.EXCLUDE }}
+          FAIL_ON_SCAN_ERROR: ${{ vars.FAIL_ON_SCAN_ERROR }}
+          WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT }}
+          
+      - name: Upload Scan Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Qualys_WAS_Scan_Result
+          path: ./outputs
