@@ -72,9 +72,9 @@ public class QualysWASScanBuilder {
         this.apiServer = environment.getProperty("API_SERVER", "");
         this.qualysUsername = environment.getProperty("QUALYS_USERNAME", "");
         this.qualysPasssword = environment.getProperty("QUALYS_PASSWORD", "");
-        this.useProxy = Boolean.parseBoolean(environment.getProperty("USE_PROXY", "false"));
+        this.useProxy = environment.getProperty("USE_PROXY", Boolean.class, false);
         this.proxyServer = environment.getProperty("PROXY_SERVER", "");
-        this.proxyPort = Integer.parseInt(environment.getProperty("PROXY_PORT", "0"));
+        this.proxyPort = environment.getProperty("PROXY_PORT", Integer.class, 0);
         this.proxyUsername = environment.getProperty("PROXY_USERNAME", "");
         this.proxyPassword = environment.getProperty("PROXY_PASSWORD", "");
         this.webAppId = environment.getProperty("WEBAPP_ID", "");
@@ -86,13 +86,13 @@ public class QualysWASScanBuilder {
         this.optionProfileId = environment.getProperty("OPTION_PROFILE_ID", "");
         this.cancelOptions = environment.getProperty("CANCEL_OPTION", "");
         this.cancelHours = environment.getProperty("CANCEL_HOURS", "");
-        this.severityCheck = Boolean.parseBoolean(environment.getProperty("SEVERITY_CHECK", "false"));
-        this.severityLevel = Integer.parseInt(environment.getProperty("SEVERITY_LEVEL", "0"));
-        this.isFailOnQidFound = Boolean.parseBoolean(environment.getProperty("IS_FAIL_ON_QID_FOUND", "false"));
+        this.severityCheck = environment.getProperty("SEVERITY_CHECK", Boolean.class, false);
+        this.severityLevel = environment.getProperty("SEVERITY_LEVEL", Integer.class, 0);
+        this.isFailOnQidFound = environment.getProperty("IS_FAIL_ON_QID_FOUND", Boolean.class, false);
         this.qidList = environment.getProperty("QID_LIST", "");
         this.exclude = environment.getProperty("EXCLUDE", "");
-        this.isFailOnScanError = Boolean.parseBoolean(environment.getProperty("FAIL_ON_SCAN_ERROR", "false"));
-        this.waitForResult = Boolean.parseBoolean(environment.getProperty("WAIT_FOR_RESULT", "true"));
+        this.isFailOnScanError = environment.getProperty("FAIL_ON_SCAN_ERROR", Boolean.class, false);
+        this.waitForResult = environment.getProperty("WAIT_FOR_RESULT", Boolean.class, true);
         this.severity1Limit = 0;
         this.severity2Limit = 0;
         this.severity3Limit = 0;
@@ -184,8 +184,6 @@ public class QualysWASScanBuilder {
             failConditionsObj.add("excludeQids", element);
         }
         obj.add("failConditions", failConditionsObj);
-
-        logger.info("Criteria Object to common library: " + obj);
         return obj;
     }
 
@@ -228,47 +226,45 @@ public class QualysWASScanBuilder {
                 String message4 = "To check scan result, please follow the url: " + portalUrl + "/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
                 logger.info(message1);
                 logger.info(message2);
-                logger.info(message3);
-                logger.info(message4);
-                if (waitForResult) {
+                if (this.waitForResult) {
                     logger.info("Qualys task - Fetching scan finished status");
                     getScanFinishedStatus(scanId);
                     logger.info("Scan finished status fetched successfully");
                     boolean buildPassed = true;
-                    if (isFailConditionConfigured) {
-                        Gson gson = new Gson();
-                        QualysWASScanResultParser resultParser = new QualysWASScanResultParser(gson.toJson(getCriteriaAsJsonObject()), client);
-                        logger.info("Qualys task - Fetching scan result");
-                        JsonObject result = resultParser.fetchScanResult(scanId);
-                        if (result != null) {
-                            String fileName = "Qualys_Wasscan_" + scanId + ".json";
-                            JsonObject data = result;
-                            data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().remove("igs").getAsJsonObject();
-                            data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().addProperty("ScanId", scanId);
-                            Helper.dumpDataIntoFile(gson.toJson(data), fileName);
 
+                    Gson gson = new Gson();
+                    QualysWASScanResultParser resultParser = new QualysWASScanResultParser(gson.toJson(getCriteriaAsJsonObject()), client);
+                    logger.info("Qualys task - Fetching scan result");
+                    JsonObject result = resultParser.fetchScanResult(scanId);
+                    if (result != null) {
+                        String fileName = "Qualys_Wasscan_" + scanId + ".json";
+                        JsonObject data = result;
+                        data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().remove("igs").getAsJsonObject();
+                        data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().addProperty("ScanId", scanId);
+                        Helper.dumpDataIntoFile(gson.toJson(data), fileName);
+                        if (isFailConditionConfigured) {
                             JsonObject evaluationResult = evaluateFailurePolicy(result);
                             buildPassed = evaluationResult.get("passed").getAsBoolean();
 
                             if (!buildPassed) {
-                                String failureMessage = evaluationResult.get("failureMessage").getAsString();
-                                throw new Exception(failureMessage);
+                                logger.error("Qualys task - Build failed due to fail criteria");
                             }
                         }
-                        logger.info("Scan finished status fetched successfully");
+                        logger.info(message3);
+                        logger.info(message4);
                     }
                 } else {
+                    logger.info(message3);
+                    logger.info(message4);
                     String message = message1 + "\n" + message2 + "\n" + message3 + "\n" + message4;
                     String fileName = "Qualys_Wasscan_" + webAppId + ".txt";
                     Helper.dumpDataIntoFile(message, fileName);
                 }
             } else {
-                logger.info("API Error - Could not launch new scan");
+                logger.error("API Error - Could not launch new scan");
             }
-
-
         } catch (Exception ex) {
-            logger.error("Something went wrong. Reason: " + ex.getMessage());
+            logger.error("Something went wrong. Reason: " + ex.getMessage(), ex);
         }
     }
 
@@ -295,7 +291,7 @@ public class QualysWASScanBuilder {
         logger.info(status);
     }
 
-    private String getBuildFailureMessages(JsonObject result) throws Exception {
+    private String getBuildFailureMessages(JsonObject result) {
         List<String> failureMessages = new ArrayList<String>();
         if (result.has("qids") && result.get("qids") != null && !result.get("qids").isJsonNull()) {
             JsonObject qidsObj = result.get("qids").getAsJsonObject();
