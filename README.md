@@ -40,7 +40,6 @@ jobs:
             id: was
             with:
               API_SERVER: ${{ vars.API_SERVER }}
-              PORTAL_SERVER: ${{ vars.PORTAL_SERVER }}
               QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
               QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
               USE_PROXY: ${{ vars.USE_PROXY }}
@@ -103,7 +102,6 @@ jobs:
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
-          PORTAL_SERVER: ${{ vars.PORTAL_SERVER }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
           USE_PROXY: ${{ vars.USE_PROXY }}
@@ -163,7 +161,6 @@ jobs:
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
-          PORTAL_SERVER: ${{ vars.PORTAL_SERVER }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
           USE_PROXY: ${{ vars.USE_PROXY }}
@@ -213,7 +210,6 @@ jobs:
 | Parameter          | Description | Required | Default | Type            |
 |--------------------| -------------------------------------------------------------------------------------------------------- |----------|---------|-----------------|
 | API_SERVER         |   | YES      | ""      | Input parameter |
-| PORTAL_SERVER      |   | YES      | ""      | Input parameter |
 | QUALYS_USERNAME    |   | YES      | ""      | Input parameter |
 | QUALYS_PASSWORD    |   | YES      | ""      | Input parameter |
 | USE_PROXY          |   | YES      | false   | Input parameter |
@@ -234,4 +230,3 @@ jobs:
 | SEVERITY_LEVEL     |   | NO       | 0       | Input parameter |
 | FAIL_ON_SCAN_ERROR |   | NO       | false   | Input parameter |
 | WAIT_FOR_RESULT    |   | NO       | true    | Input parameter |
- 
