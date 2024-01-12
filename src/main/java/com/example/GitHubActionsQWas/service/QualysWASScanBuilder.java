@@ -4,7 +4,6 @@ import com.example.GitHubActionsQWas.WASAuth.WASAuth;
 import com.example.GitHubActionsQWas.WASClient.WASClient;
 import com.example.GitHubActionsQWas.util.Helper;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -49,6 +48,7 @@ public class QualysWASScanBuilder {
     private boolean isFailOnSevereVulns = true;
     private boolean severityCheck;
     private int severityLevel;
+    private int interval;
     private int severity1Limit;
     private int severity2Limit;
     private int severity3Limit;
@@ -62,7 +62,7 @@ public class QualysWASScanBuilder {
     private boolean isFailOnQidFound;
     private String qidList;
     private String exclude;
-    private boolean isFailOnScanError = true;
+    private boolean isFailOnScanError;
     private String pollingInterval;
     private String vulnsTimeout;
     private boolean waitForResult;
@@ -94,6 +94,7 @@ public class QualysWASScanBuilder {
         this.exclude = environment.getProperty("EXCLUDE", "");
         this.isFailOnScanError = environment.getProperty("FAIL_ON_SCAN_ERROR", Boolean.class, false);
         this.waitForResult = environment.getProperty("WAIT_FOR_RESULT", Boolean.class, true);
+        this.interval = environment.getProperty("INTERVAL", Integer.class, 5);
         this.severity1Limit = 0;
         this.severity2Limit = 0;
         this.severity3Limit = 0;
@@ -150,17 +151,17 @@ public class QualysWASScanBuilder {
         JsonObject failConditionsObj = new JsonObject();
         Gson gson = new Gson();
         if (isFailOnQidFound) {
-            if (this.qidList == null || this.qidList.isEmpty()) {
-                JsonElement empty = new JsonArray();
-                failConditionsObj.add("qids", empty);
-            } else {
-                List<String> qids = new ArrayList<>(List.of(this.qidList.split(",")));
-                qids.replaceAll(String::trim);
-                JsonElement element = gson.toJsonTree(qids, new TypeToken<List<String>>() {
-                }.getType());
-                failConditionsObj.add("qids", element);
+            if (this.qidList != null) {
+                if (!this.qidList.isEmpty()) {
+                    List<String> qids = new ArrayList<>(List.of(this.qidList.split(",")));
+                    qids.replaceAll(String::trim);
+                    JsonElement element = gson.toJsonTree(qids, new TypeToken<List<String>>() {
+                    }.getType());
+                    failConditionsObj.add("qids", element);
+                }
             }
         }
+
         if (isFailOnSevereVulns) {
             JsonObject severities = new JsonObject();
             if (this.isSev5Vulns) severities.addProperty("5", this.severity5Limit);
@@ -168,22 +169,24 @@ public class QualysWASScanBuilder {
             if (this.isSev3Vulns) severities.addProperty("3", this.severity3Limit);
             if (this.isSev2Vulns) severities.addProperty("2", this.severity2Limit);
             if (this.isSev1Vulns) severities.addProperty("1", this.severity1Limit);
+
             failConditionsObj.add("severities", severities);
+
+            if (this.exclude != null) {
+                if (!this.exclude.isEmpty()) {
+                    List<String> excludeQids = new ArrayList<>(List.of(this.exclude.split(",")));
+                    excludeQids.replaceAll(String::trim);
+                    JsonElement element = gson.toJsonTree(excludeQids, new TypeToken<List<String>>() {
+                    }.getType());
+                    failConditionsObj.add("excludeQids", element);
+                }
+            }
         }
+
         if (isFailOnScanError) {
             failConditionsObj.addProperty("failOnScanError", true);
         }
 
-        if (this.exclude == null || this.exclude.isEmpty()) {
-            JsonElement empty = new JsonArray();
-            failConditionsObj.add("excludeQids", empty);
-        } else {
-            List<String> excludeQids = new ArrayList<>(List.of(this.exclude.split(",")));
-            excludeQids.replaceAll(String::trim);
-            JsonElement element = gson.toJsonTree(excludeQids, new TypeToken<List<String>>() {
-            }.getType());
-            failConditionsObj.add("excludeQids", element);
-        }
         obj.add("failConditions", failConditionsObj);
         logger.debug("Criteria: " + obj.toString());
         return obj;
@@ -193,7 +196,7 @@ public class QualysWASScanBuilder {
      *
      */
     public void launchWebApplicationScan() {
-        String portalUrl = apiServer.replace("api","guard");
+        portalServer = apiServer.replace("api", "guard");
 
         logger.info("Using Qualys API Server: " + apiServer);
 
@@ -214,7 +217,7 @@ public class QualysWASScanBuilder {
                 isFailConditionConfigured = true;
             }
 
-            QualysWASScanService service = QualysWASScanService.builder().webAppId(webAppId).scanName(scanName).scanType(scanType).authRecord(authRecord).authRecordId(authRecordId).optionProfile(optionProfile).optionProfileId(optionProfileId).cancelOptions(cancelOptions).cancelHours(cancelHours).isFailConditionsConfigured(isFailConditionConfigured).pollingIntervalForVulns(Helper.setTimeoutInMinutes("pollingInterval", DEFAULT_POLLING_INTERVAL_FOR_VULNS, pollingInterval)).vulnsTimeout(Helper.setTimeoutInMinutes("vulnsTimeout", DEFAULT_TIMEOUT_FOR_VULNS, vulnsTimeout)).criteriaObject(getCriteriaAsJsonObject()).apiServer(apiServer).apiUser(qualysUsername).apiPass(qualysPasssword).useProxy(useProxy).proxyServer(proxyServer).proxyPort(proxyPort).proxyUsername(proxyUsername).proxyPassword(proxyPassword).portalUrl(portalUrl).failOnScanError(isFailOnScanError).apiClient(client).build();
+            QualysWASScanService service = QualysWASScanService.builder().webAppId(webAppId).scanName(scanName).scanType(scanType).authRecord(authRecord).authRecordId(authRecordId).optionProfile(optionProfile).optionProfileId(optionProfileId).cancelOptions(cancelOptions).cancelHours(cancelHours).isFailConditionsConfigured(isFailConditionConfigured).pollingIntervalForVulns(Helper.setTimeoutInMinutes("pollingInterval", DEFAULT_POLLING_INTERVAL_FOR_VULNS, pollingInterval)).vulnsTimeout(Helper.setTimeoutInMinutes("vulnsTimeout", DEFAULT_TIMEOUT_FOR_VULNS, vulnsTimeout)).criteriaObject(getCriteriaAsJsonObject()).apiServer(apiServer).apiUser(qualysUsername).apiPass(qualysPasssword).useProxy(useProxy).proxyServer(proxyServer).proxyPort(proxyPort).proxyUsername(proxyUsername).proxyPassword(proxyPassword).portalUrl(portalServer).failOnScanError(isFailOnScanError).apiClient(client).build();
 
             logger.info("Qualys task - Started Launching web app scanning with WAS");
             String scanId = service.launchScan();
@@ -222,12 +225,12 @@ public class QualysWASScanBuilder {
                 String message1 = "Launching scan with 'WAIT_FOR_RESULT:" + waitForResult + "'";
                 String message2 = "Scan successfully launched with scan id: " + scanId;
                 String message3 = "Please switch to WAS Classic UI and Check for report...";
-                String message4 = "To check scan result, please follow the url: " + portalUrl + "/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
+                String message4 = "To check scan result, please follow the url: " + portalServer + "/portal-front/module/was/#forward=/module/was/&scan-report=" + scanId;
                 logger.info(message1);
                 logger.info(message2);
                 if (this.waitForResult) {
                     logger.info("Qualys task - Fetching scan finished status");
-                    getScanFinishedStatus(scanId);
+                    String status = getScanFinishedStatus(scanId);
                     logger.info("Scan finished status fetched successfully");
                     boolean buildPassed = true;
 
@@ -241,6 +244,10 @@ public class QualysWASScanBuilder {
                         if (result.has("ServiceResponse") && result.get("ServiceResponse").getAsJsonObject().has("responseCode") && result.get("ServiceResponse").getAsJsonObject().get("responseCode").getAsString().equalsIgnoreCase("SUCCESS")) {
                             data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().remove("igs").getAsJsonObject();
                             data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().addProperty("ScanId", scanId);
+                            if (!status.equalsIgnoreCase("error") && !status.equalsIgnoreCase("canceled") && !status.equalsIgnoreCase("finished") && isFailOnScanError) {
+                                Helper.dumpDataIntoFile(gson.toJson(data), "Qualys_Wasscan_" + scanId + ".txt");
+                                System.exit(1);
+                            }
                             Helper.dumpDataIntoFile(gson.toJson(data), fileName);
                             if (isFailConditionConfigured) {
                                 JsonObject evaluationResult = evaluateFailurePolicy(result);
@@ -257,7 +264,7 @@ public class QualysWASScanBuilder {
                         } else {
                             String message = "API Error - Could not fetch scan result for scan id: " + scanId;
                             logger.error(message);
-                            Helper.dumpDataIntoFile(message, "Qualys_Wasscan_" + scanId + ".txt");
+                            Helper.dumpDataIntoFile(message, "Qualys_Wasscan_" + scanId + ".json");
                             System.exit(1);
                         }
                         logger.info(message3);
@@ -298,10 +305,11 @@ public class QualysWASScanBuilder {
     /**
      * @param scanId
      */
-    private void getScanFinishedStatus(String scanId) {
+    private String getScanFinishedStatus(String scanId) {
         QualysWASScanStatusService statusService = new QualysWASScanStatusService(client);
-        String status = statusService.fetchScanStatus(scanId);
+        String status = statusService.fetchScanStatus(scanId, portalServer, interval);
         logger.info(status);
+        return status;
     }
 
     private String getBuildFailureMessages(JsonObject result) {
@@ -325,14 +333,14 @@ public class QualysWASScanBuilder {
                 if (severity.has("configured") && !severity.get("configured").isJsonNull() && severity.get("configured").getAsInt() != -1) {
                     sevFound += "Severity " + i + "; Count: " + (severity.get("found").isJsonNull() ? 0 : severity.get("found").getAsString()) + "\n";
                     sevConfigured += "Severity " + i + ": " + (severity.get("configured").isJsonNull() ? "false" : "true") + "\n";
-                    boolean sevPass = severity.get("result").getAsBoolean();
-                    if (!sevPass) {
+                    severityFailed = severity.get("result").getAsBoolean();
+                    if (!severityFailed) {
                         severityFailed = true;
                     }
                 }
             }
         }
-        if (!severityFailed) {
+        if (severityFailed) {
             failureMessages.add("The vulnerabilities count by severity exceeded one of the configured threshold value : " + sevConfigured + sevFound);
         }
 
