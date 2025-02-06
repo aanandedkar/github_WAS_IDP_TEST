@@ -1,15 +1,22 @@
 package com.example.GitHubActionsQWas.service;
 
 import com.example.GitHubActionsQWas.WASAuth.WASAuth;
+import com.example.GitHubActionsQWas.WASClient.QualysWASResponse;
 import com.example.GitHubActionsQWas.WASClient.WASClient;
+import com.example.GitHubActionsQWas.constants.Constants;
 import com.example.GitHubActionsQWas.util.Helper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +76,7 @@ public class QualysWASScanBuilder {
     private String vulnsTimeout;
     private boolean waitForResult;
     private WASClient client;
+    private String fileType;
 
     public QualysWASScanBuilder(Environment environment) {
         try {
@@ -97,8 +105,9 @@ public class QualysWASScanBuilder {
             this.exclude = environment.getProperty("EXCLUDE", "");
             this.isFailOnScanError = environment.getProperty("FAIL_ON_SCAN_ERROR", Boolean.class, false);
             this.waitForResult = environment.getProperty("WAIT_FOR_RESULT", Boolean.class, true);
-            this.interval = environment.getProperty("INTERVAL", Integer.class, 5);
+            this.interval = environment.getProperty("INTERVAL", Integer.class, 1);
             this.timeout = environment.getProperty("TIMEOUT", Integer.class, (60 * 5) + 50);
+            this.fileType = environment.getProperty("FILE_TYPE", "PDF");
             this.severity1Limit = 0;
             this.severity2Limit = 0;
             this.severity3Limit = 0;
@@ -262,6 +271,9 @@ public class QualysWASScanBuilder {
                                 String fileName = "Qualys_Wasscan_" + scanId + ".json";
                                 JsonObject data = result;
                                 if (result.has("ServiceResponse") && result.get("ServiceResponse").getAsJsonObject().has("responseCode") && result.get("ServiceResponse").getAsJsonObject().get("responseCode").getAsString().equalsIgnoreCase("SUCCESS")) {
+                                    //DESC: Added Support for Create Report, Report Status & Download Report API in case of Success.
+                                    createReport(scanId);
+
                                     data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().remove("igs").getAsJsonObject();
                                     data.get("ServiceResponse").getAsJsonObject().getAsJsonArray("data").get(0).getAsJsonObject().get("WasScan").getAsJsonObject().addProperty("ScanId", scanId);
                                     if (!status.equalsIgnoreCase("error") && !status.equalsIgnoreCase("canceled") && !status.equalsIgnoreCase("finished") && isFailOnScanError) {
@@ -414,4 +426,90 @@ public class QualysWASScanBuilder {
         }
         return true;
     }
+
+    /**
+     * This method triggers request for Create Scan report in PDF format
+     *
+     * @param scanId
+     */
+    public void createReport(String scanId) {
+        String requestBodyWithScanId = Constants.CREATE_REPORT_REQUEST_BODY.replace(Constants.TEXT_TO_REPLACE_SCAN_ID, scanId);
+        String requestBody = requestBodyWithScanId.replace(Constants.TEXT_TO_REPLACE_FILE_FORMAT, this.fileType);
+        QualysWASResponse response = client.createReport(JsonParser.parseString(requestBody).getAsJsonObject());
+        JsonObject responseObj = response.response;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = mapper.readTree(responseObj.toString());
+            String responseCode = rootNode.path(Constants.SERVICE_RESPONSE)
+                    .path(Constants.RESPONSE_CODE).asText();
+            if (responseCode != null && responseCode.equals(Constants.SUCCESS)) {
+                int reportId = rootNode.path(Constants.SERVICE_RESPONSE)
+                        .path(Constants.DATA)
+                        .get(0)
+                        .path(Constants.REPORT)
+                        .path(Constants.ID)
+                        .asInt();
+                if (reportId != -1) {
+                    String reportIdVal = String.valueOf(reportId);
+                    String status = getReportStatus(reportIdVal);
+                    if (Constants.COMPLETE.equalsIgnoreCase(status)) {
+                        client.downloadReport(reportIdVal);
+                    }
+                }
+            } else {
+                logger.error("Create Report API failed for scanId : {}", scanId);
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to read Create Report API response. Error: {}", e.getMessage());
+        }
+
+    }
+
+    /**
+     * This method fetches the report status. It will wait until the status comes to COMPLETE or it checks for 10 minutes max.
+     *
+     * @param reportId
+     * @return
+     */
+    public String getReportStatus(String reportId) {
+        String status = Constants.UNKNOWN;
+        int count = 0;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            while (!Constants.COMPLETE.equalsIgnoreCase(status) && count < 20) {
+                count++;
+                QualysWASResponse response = client.getReportStatus(reportId);
+                JsonObject responseObj = response.response;
+
+                JsonNode rootNode = mapper.readTree(responseObj.toString());
+                String responseCode = rootNode.path(Constants.SERVICE_RESPONSE)
+                        .path(Constants.RESPONSE_CODE).asText();
+
+                if (responseCode != null && responseCode.equals(Constants.SUCCESS)) {
+                    status = rootNode.path(Constants.SERVICE_RESPONSE)
+                            .path(Constants.DATA)
+                            .get(0)
+                            .path(Constants.REPORT)
+                            .path(Constants.STATUS)
+                            .asText();
+
+                    logger.info("Report ID: {} | Current Status: {}", reportId, status);
+                } else {
+                    logger.error("Failed to fetch report status for reportId : {}", reportId);
+                    break;
+                }
+
+                if (!Constants.COMPLETE.equalsIgnoreCase(status)) {
+                    logger.info("Waiting for 30 seconds before checking again...");
+                    Thread.sleep(30000);
+                }
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to parse Report Status API response. Error: {}", e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error("Process Interrupted, exiting...");
+        }
+        return status;
+    }
+
 }
