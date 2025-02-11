@@ -69,6 +69,7 @@ jobs:
               WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT }}
               INTERVAL: ${{ vars.INTERVAL }}
               TIMEOUT: ${{ vars.TIMEOUT }}
+              FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 
 To download the scan result in your repository, checkout the repository using below code. 
@@ -129,6 +130,7 @@ jobs:
           WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT }}
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
+          FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
 If repository is private, then add PAT (personal access token) token in the checkout step.
@@ -186,6 +188,7 @@ jobs:
           WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT }}
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
+          FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
 If repository is private, then add PAT (personal access token) token in the checkout step.
@@ -245,6 +248,7 @@ jobs:
           WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT }}
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
+          FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 To download the scan result in your repository, checkout the repository using the following code.
 If repository is private, then add PAT (personal access token) token in the checkout step.
@@ -293,5 +297,5 @@ If repository is private, then add PAT (personal access token) token in the chec
 | INTERVAL           | Use the numeric value to set the polling interval in minutes to collect the scan data. Ex: 5. By default, it will be 5 Minutes.                                                                                                                                                                                                                                                                                                                                                                                                                  | Optional            | 5             | Variable       |
 | TIMEOUT            | Use the numeric value to set the timeout duration in minutes to check the scan results. For example, 60. The default value of TIMEOUT is 350 min. Note: The timeout limit for GitHub-hosted runners is 360 minutes. On GitHub-hosted runners, you cannot run the job for more than 360 minutes. However, in self-hosted runners, there is no limit on timeout, and you can set a timeout for more than 360 minutes.                                                                                                                              | Optional            | 350           | Variable       |
 | EXCLUDE            | Use the QIDs separated by commas to exclude them from the scan. For example, 1234, 1345. This will exclude these two QIDs for vulnerability severity level failure conditions.                                                                                                                                                                                                                                                                                                                                                                   | Optional            | ""            | Variable       |
-
+| FILE_TYPE          | This parameter specifies the file format in which user wants the scan report                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Optional            | "PDF"         | Variable       |
 Note: The Parameter values given in the above table are case-sensitive.

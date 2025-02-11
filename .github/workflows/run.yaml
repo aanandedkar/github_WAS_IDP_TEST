@@ -40,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       
       - name: Archive JAR Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: GitHub-Action-QWas-Artifact
           path: target/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
@@ -87,10 +87,11 @@ jobs:
           WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT }}
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
+          FILE_TYPE: ${{ vars.FILE_TYPE }}
         continue-on-error: true
       
       - name: Upload Scan Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Qualys_WAS_Scan_Result
           path: ./outputs
