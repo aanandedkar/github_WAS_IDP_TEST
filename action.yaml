@@ -67,6 +67,9 @@ inputs:
   TIMEOUT:
     description: "Timeout"
     required: false
+  FILE_TYPE:
+    description: "File format to download artifact"
+    required: false
 
 runs:
   using: composite
@@ -126,6 +129,7 @@ runs:
         WAIT_FOR_RESULT: ${{ inputs.WAIT_FOR_RESULT }}
         INTERVAL: ${{ inputs.INTERVAL }}
         TIMEOUT: ${{ inputs.TIMEOUT }}
+        FILE_TYPE: ${{ inputs.FILE_TYPE }}
       continue-on-error: true
       shell: bash
     
