@@ -23,4 +23,4 @@ JAVAOPTS="-server \
 
 echo $JAVAOPTS
 
-exec java $JAVAOPTS -jar $HOME/qint-was-client.jar
+exec java $JAVAOPTS -jar $HOME/github-was-action.jar
