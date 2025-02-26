@@ -23,5 +23,5 @@ blackduck-artifacts-to-scan: /
 email-notifications:
 teams-webhook-url: https://qualys.webhook.office.com/webhookb2/fb013c9c-125f-4fed-940f-0403fcaceb2e@81a9ef9a-9a98-4b00-886a-895a603bc029/IncomingWebhook/1d8267aff251406ba66d2f0b8cd9cc86/8769138b-5890-4644-ab24-5826018693e4
 
-is-coverity-enabled : true
+is-coverity-enabled: true
 cov-project-name: QINT
