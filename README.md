@@ -84,7 +84,7 @@ If the repository is private, then add PAT (personal access token) token in the 
              PAT: ${{ secrets.ACCESS_TOKEN }}
 
           - name: Download Result
-            uses: actions/download-artifact@v3
+            uses: actions/download-artifact@v4
             with:
              name: Qualys_WAS_Scan_Result
              path: PATH_TO_TARGET_DIRECTORY 
@@ -144,7 +144,7 @@ If repository is private, then add PAT (personal access token) token in the chec
            PAT: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Download Result
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
            name: Qualys_WAS_Scan_Result
            path: PATH_TO_TARGET_DIRECTORY
@@ -202,7 +202,7 @@ If repository is private, then add PAT (personal access token) token in the chec
            PAT: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Download Result
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
            name: Qualys_WAS_Scan_Result
            path: PATH_TO_TARGET_DIRECTORY
@@ -262,7 +262,7 @@ If repository is private, then add PAT (personal access token) token in the chec
            PAT: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Download Result
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
            name: Qualys_WAS_Scan_Result
            path: PATH_TO_TARGET_DIRECTORY
