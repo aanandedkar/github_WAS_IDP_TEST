@@ -137,7 +137,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: Qualys_WAS_Scan_Result
-        path: ./outputs
+        path: ./outputs/
     
     - name: Checking for Qualys WAS Scan Plugin Failure
       if: steps.run-app.outcome != 'success'
