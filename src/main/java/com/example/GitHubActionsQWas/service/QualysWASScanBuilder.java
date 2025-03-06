@@ -16,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.logging.log4j.util.Strings;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -434,7 +433,12 @@ public class QualysWASScanBuilder {
      */
     public void createReport(String scanId) {
         String requestBodyWithScanId = Constants.CREATE_REPORT_REQUEST_BODY.replace(Constants.TEXT_TO_REPLACE_SCAN_ID, scanId);
-        String requestBody = requestBodyWithScanId.replace(Constants.TEXT_TO_REPLACE_FILE_FORMAT, this.fileType);
+        String requestBody;
+        if (this.fileType != null && !this.fileType.trim().isEmpty()) {
+            requestBody = requestBodyWithScanId.replace(Constants.TEXT_TO_REPLACE_FILE_FORMAT, this.fileType);
+        } else {
+            requestBody = requestBodyWithScanId.replace(Constants.TEXT_TO_REPLACE_FILE_FORMAT, Constants.PDF_FORMAT);
+        }
         QualysWASResponse response = client.createReport(JsonParser.parseString(requestBody).getAsJsonObject());
         JsonObject responseObj = response.response;
         ObjectMapper mapper = new ObjectMapper();
