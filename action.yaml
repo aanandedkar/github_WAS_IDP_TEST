@@ -76,6 +76,10 @@ runs:
   steps:
     - name: Setting up GitHub Repository
       uses: actions/checkout@v3
+      
+    - name: Generate Maven Wrapper (if missing)
+      run: mvn -N wrapper:wrapper
+      shell: bash
   
     - name: Setting up Maven Wrapper
       if: runner.os != 'Windows'
