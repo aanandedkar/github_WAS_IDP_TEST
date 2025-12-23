@@ -89,6 +89,7 @@ public class QualysWASScanBuilder {
     private String authType;
     private String clientId;
     private String clientSecret;
+    private String qualysIdentificationUrl;
 
     public QualysWASScanBuilder(Environment environment) {
         try {
@@ -123,13 +124,14 @@ public class QualysWASScanBuilder {
             this.clientId = environment.getProperty("CLIENT_ID", "");
             this.clientSecret = environment.getProperty("CLIENT_SECRET", "");
             this.platform = environment.getProperty("PLATFORM", "");
+            this.qualysIdentificationUrl = "https://www.qualys.com/platform-identification";
 
             if (StringUtil.notNullNorEmpty(platform)) {
                 this.apiServer = ApiServerUrl.getByKey(platform).getUrl();
                 this.portalServer = PortalUrl.getByKey(platform).getUrl();
                 this.gatewayServer = ApiGatewayUrl.getByKey(platform).getUrl();
             } else {
-                throw new IllegalAccessException("Invalid platform");
+                throw new Exception("PLATFORM not specified, Please configure it and try again...");
             }
 
             this.severity1Limit = 0;
@@ -145,7 +147,7 @@ public class QualysWASScanBuilder {
                 assignSeverities();
             }
         } catch (Exception ex) {
-            logger.error("Something went wrong. Reason: " + ex.getCause());
+            logger.error("Something went wrong. Reason: " + ex.getMessage());
             System.exit(1);
         }
     }

@@ -25,11 +25,14 @@ public enum PortalUrl {
     this.url = url;
   }
 
-  public static PortalUrl getByKey(String key) {
+  public static PortalUrl getByKey(String key) throws Exception {
     try {
       return valueOf(key.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      String exception = String.format("Exception: You have entered invalid platform {%s}, Please visit following url to identify correct platform - %s",
+              key.toUpperCase(),
+              "https://www.qualys.com/platform-identification ");
+      throw new Exception(exception);
     }
   }
 }
