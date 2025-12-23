@@ -131,7 +131,8 @@ public class QualysWASScanBuilder {
                 this.portalServer = PortalUrl.getByKey(platform).getUrl();
                 this.gatewayServer = ApiGatewayUrl.getByKey(platform).getUrl();
             } else {
-                throw new Exception("PLATFORM not specified, Please configure it and try again...");
+                throw new Exception("PLATFORM not specified, Please configure it and try again. Please visit following url to identify correct platform: " +
+                        qualysIdentificationUrl);
             }
 
             this.severity1Limit = 0;
