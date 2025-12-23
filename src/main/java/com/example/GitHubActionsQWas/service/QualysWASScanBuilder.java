@@ -120,7 +120,7 @@ public class QualysWASScanBuilder {
             this.interval = environment.getProperty("INTERVAL", Integer.class, 1);
             this.timeout = environment.getProperty("TIMEOUT", Integer.class, (60 * 5) + 50);
             this.fileType = environment.getProperty("FILE_TYPE", "PDF");
-            this.authType = environment.getProperty("AUTH_TYPE", "BASIC");
+            this.authType = environment.getProperty("AUTH_TYPE", "");
             this.clientId = environment.getProperty("CLIENT_ID", "");
             this.clientSecret = environment.getProperty("CLIENT_SECRET", "");
             this.platform = environment.getProperty("PLATFORM", "");
