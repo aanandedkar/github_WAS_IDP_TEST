@@ -201,8 +201,8 @@ public class QualysWASScanBuilder {
         }
     }
 
-    protected void initWASClient() throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        WASAuth auth = new WASAuth();;
+    protected void initWASClient() throws Exception {
+        WASAuth auth = new WASAuth(this.platform);
         if (authType.equals(Constants.BASIC)) {
             auth.setWasCredentials(apiServer, qualysUsername, qualysPasssword, Constants.BASIC);
         } else {
@@ -440,16 +440,26 @@ public class QualysWASScanBuilder {
     }
 
     public boolean isMandatoryParametersSet() {
-        return !(this.apiServer == null || this.apiServer.isEmpty() ||
-                this.qualysUsername == null || this.qualysUsername.isEmpty() ||
-                this.qualysPasssword == null || this.qualysPasssword.isEmpty() ||
+        boolean isMandatoryParametersSet = !(this.apiServer == null || this.apiServer.isEmpty() ||
                 this.webAppId == null || this.webAppId.isEmpty() ||
                 this.scanName == null || this.scanName.isEmpty() ||
                 this.scanType == null || this.scanType.isEmpty() ||
-                this.platform == null || this.platform.isEmpty()) ||
-                this.gatewayServer == null || this.gatewayServer.isEmpty() ||
-                this.portalServer == null || this.portalServer.isEmpty() ||
-                this.authType == null || this.authType.isEmpty();
+                this.platform == null || this.platform.isEmpty() ||
+                this.authType == null || this.authType.isEmpty());
+
+        if (authType != null && !authType.isEmpty()) {
+            if (authType.equals(Constants.OAUTH) && isMandatoryParametersSet) {
+                isMandatoryParametersSet = !(clientId == null || clientId.isEmpty() ||
+                        clientSecret == null || clientSecret.isEmpty());
+                if (!isMandatoryParametersSet) logger.error("Client ID or Client Secret is not set for Auth-Type: {}", authType);
+            } else if (authType.equals(Constants.BASIC) && isMandatoryParametersSet) {
+                isMandatoryParametersSet = !(qualysUsername == null || qualysUsername.isEmpty() ||
+                        qualysPasssword == null || qualysPasssword.isEmpty());
+                if (!isMandatoryParametersSet) logger.error("Username or Password is not set for Auth-Type: {}", authType);
+            }
+        }
+
+        return isMandatoryParametersSet;
     }
 
     protected boolean testConnection() {
