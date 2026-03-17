@@ -15,7 +15,7 @@
 	<description>GitHub-Action-QWas</description>
 	<properties>
 		<application.version>2.0.0</application.version>
-		<release.number>SNAPSHOT</release.number>
+		<release.number>RELEASE</release.number>
 		<application.name>github-was-action</application.name>
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
