@@ -10,11 +10,11 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>GitHubActionsQWas</artifactId>
-	<project.version>2.0.0</project.version>
+	<version>${application.version}-${release.number}</version>
 	<name>GitHubActionsQWas</name>
 	<description>GitHub-Action-QWas</description>
 	<properties>
-		<application.version>0.0.1</application.version>
+		<application.version>2.0.0</application.version>
 		<release.number>SNAPSHOT</release.number>
 		<application.name>github-was-action</application.name>
 		<java.version>17</java.version>
