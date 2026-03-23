@@ -9,9 +9,6 @@ import com.example.GitHubActionsQWas.util.ApiGatewayUrl;
 import com.example.GitHubActionsQWas.util.ApiServerUrl;
 import com.example.GitHubActionsQWas.util.Helper;
 import com.example.GitHubActionsQWas.util.PortalUrl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,11 +21,9 @@ import org.apache.tomcat.util.buf.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -512,7 +507,7 @@ public class QualysWASScanBuilder {
             } else {
                 logger.error("Create Report API failed for scanId : {}", scanId);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             logger.error("Failed to read Create Report API response. Error: {}", e.getMessage());
         }
 
@@ -557,8 +552,6 @@ public class QualysWASScanBuilder {
                     Thread.sleep(30000);
                 }
             }
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to parse Report Status API response. Error: {}", e.getMessage());
         } catch (InterruptedException e) {
             logger.error("Process Interrupted, exiting...");
         }
