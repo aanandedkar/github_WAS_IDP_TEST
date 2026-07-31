@@ -95,7 +95,7 @@ runs:
     - name: Setting up GitHub Repository
       uses: actions/checkout@v3
       with:
-       repository: Qualys/github-action-qwas
+        repository: Qualys/github-action-qwas
       
     - name: Generate Maven Wrapper (if missing)
       run: mvn -N wrapper:wrapper
