@@ -3,7 +3,7 @@ name: Qualys WAS Scan GitHub Actions
 on:
   push:
     branches:
-      - main
+      - feature/QINT-22486-IDP
   workflow_dispatch:
 
 jobs:
