@@ -16,10 +16,14 @@ This README document explains how to use the Qualys WAS GitHub Action and gives 
 1. Visit [GitHub configuration a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow) to enable GitHub Action in your repository.
    [configuring-a-workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow)
 2. Subscribe to Qualys WAS module and obtain Qualys credentials.
-3. Create GitHub Secrets and variables. Refer to GitHub Action Parameter section below to learn about the parameters.
+3. Choose an authentication type (`AUTH_TYPE`): `BASIC`, `OAUTH`, or `IDP`.
+   - **BASIC**: Use Qualys username and password.
+   - **OAUTH**: Use Qualys API client ID and client secret (token obtained from Qualys gateway `/auth/oidc` endpoint).
+   - **IDP**: Use an external Identity Provider (IDP) with client credentials grant. Requires `IDP_TOKEN_URL`, and optionally `IDP_SCOPE` and `IDP_AUDIENCE`.
+4. Create GitHub Secrets and variables. Refer to GitHub Action Parameter section below to learn about the parameters.
    Refer to [Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for more details on how to set up secrets.
-4. Configure your workflow. In the actions steps of run.yaml file use `Qualys/github_action_qwas@main`
-5. You can use the Input Parameters to customize GitHub Action as per your requirements.
+5. Configure your workflow. In the actions steps of run.yaml file use `Qualys/github_action_qwas@main`
+6. You can use the Input Parameters to customize GitHub Action as per your requirements.
 
 Note: The `actions/checkout` step is required to run before the scan action, otherwise the action does not have access to the Web apps to be scanned.
 
@@ -50,9 +54,15 @@ jobs:
             uses: Qualys/github_action_qwas@main
             id: was
             with:
-              API_SERVER: ${{ vars.API_SERVER }}
+              PLATFORM: ${{ vars.PLATFORM }}
+              AUTH_TYPE: ${{ vars.AUTH_TYPE }}
               QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
               QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
+              CLIENT_ID: ${{ vars.CLIENT_ID }}
+              CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+              IDP_TOKEN_URL: ${{ vars.IDP_TOKEN_URL }}
+              IDP_SCOPE: ${{ vars.IDP_SCOPE }}
+              IDP_AUDIENCE: ${{ vars.IDP_AUDIENCE }}
               WEBAPP_ID: ${{ vars.WEBAPP_ID }}
               SCAN_NAME: ${{ vars.SCAN_NAME }}
               SCAN_TYPE: ${{ vars.SCAN_TYPE }}
@@ -111,9 +121,15 @@ jobs:
         uses: Qualys/github_action_qwas@main
         id: was
         with:
-          API_SERVER: ${{ vars.API_SERVER }}
+          PLATFORM: ${{ vars.PLATFORM }}
+          AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          IDP_TOKEN_URL: ${{ vars.IDP_TOKEN_URL }}
+          IDP_SCOPE: ${{ vars.IDP_SCOPE }}
+          IDP_AUDIENCE: ${{ vars.IDP_AUDIENCE }}
           WEBAPP_ID: ${{ vars.WEBAPP_ID }}
           SCAN_NAME: ${{ vars.SCAN_NAME }}
           SCAN_TYPE: ${{ vars.SCAN_TYPE }}
@@ -169,9 +185,15 @@ jobs:
         uses: Qualys/github_action_qwas@main
         id: was
         with:
-          API_SERVER: ${{ vars.API_SERVER }}
+          PLATFORM: ${{ vars.PLATFORM }}
+          AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          IDP_TOKEN_URL: ${{ vars.IDP_TOKEN_URL }}
+          IDP_SCOPE: ${{ vars.IDP_SCOPE }}
+          IDP_AUDIENCE: ${{ vars.IDP_AUDIENCE }}
           WEBAPP_ID: ${{ vars.WEBAPP_ID }}
           SCAN_NAME: ${{ vars.SCAN_NAME }}
           SCAN_TYPE: ${{ vars.SCAN_TYPE }}
@@ -229,9 +251,15 @@ jobs:
         uses: Qualys/github_action_qwas@main
         id: was
         with:
-          API_SERVER: ${{ vars.API_SERVER }}
+          PLATFORM: ${{ vars.PLATFORM }}
+          AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          IDP_TOKEN_URL: ${{ vars.IDP_TOKEN_URL }}
+          IDP_SCOPE: ${{ vars.IDP_SCOPE }}
+          IDP_AUDIENCE: ${{ vars.IDP_AUDIENCE }}
           WEBAPP_ID: ${{ vars.WEBAPP_ID }}
           SCAN_NAME: ${{ vars.SCAN_NAME }}
           SCAN_TYPE: ${{ vars.SCAN_TYPE }}
@@ -272,15 +300,24 @@ If repository is private, then add PAT (personal access token) token in the chec
 1. Valid Qualys Credentials and subscription to Qualys WAS and Qualys API.
 2. Use the `actions/checkout@v3` step with` fetch-depth: 0` before calling Qualys WAS GitHub action.
 3. While working on the self-hosted runners, ensure that your machine has stable internet connection.
-4. Add `QUALYS_PASSWORD` in `secrets` and remaining parameters to the `repository variables` of Qualys WAS GitHub action.
+4. Set the `AUTH_TYPE` parameter to one of `BASIC`, `OAUTH`, or `IDP`.
+5. Add `QUALYS_PASSWORD` and `CLIENT_SECRET` in `secrets` and remaining parameters to the `repository variables` of Qualys WAS GitHub action.
+6. For `IDP` auth, ensure `IDP_TOKEN_URL` is configured. `IDP_SCOPE` and `IDP_AUDIENCE` are optional.
+7. For `OAUTH` or `IDP` auth, ensure `CLIENT_ID` and `CLIENT_SECRET` are configured.
 
 ## GitHub action Parameters
 
 | Parameter          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Mandatory/ Optional | Default Value | Parameter Type |
 |--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|---------------|----------------|
-| API_SERVER         | Use the Qualys Password                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Mandatory           | ""            | Secret         |
-| QUALYS_USERNAME    | Use the Qualys Username                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Mandatory           | ""            | Variable       |
-| QUALYS_PASSWORD    | Use the API URL. [Click here](https://www.qualys.com/platform-identification/) to get your API URL. (Make sure that you provide API server URL only. Platform URL or API Gateway URL is not valid)                                                                                                                                                                                                                                                                                                                                               | Mandatory           | ""            | Variable       |
+| PLATFORM           | Qualys Platform identifier (e.g. US1, US2, EU1, IN1, etc.). [Click here](https://www.qualys.com/platform-identification/) to identify your platform.                                                                                                                                                                                                                                                                                                                                                                                              | Mandatory           | ""            | Variable       |
+| AUTH_TYPE          | Authentication type. Use one of the following: BASIC: Use Qualys username and password. OAUTH: Use Qualys API client credentials (CLIENT_ID and CLIENT_SECRET). IDP: Use an external Identity Provider with client credentials grant.                                                                                                                                                                                                                                                                                                          | Mandatory           | ""            | Variable       |
+| QUALYS_USERNAME    | Qualys Username. Required when AUTH_TYPE is BASIC.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Variable       |
+| QUALYS_PASSWORD    | Qualys Password. Required when AUTH_TYPE is BASIC.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Secret         |
+| CLIENT_ID          | Qualys API Client ID. Required when AUTH_TYPE is OAUTH or IDP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Optional            | ""            | Variable       |
+| CLIENT_SECRET      | Qualys API Client Secret. Required when AUTH_TYPE is OAUTH or IDP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Secret         |
+| IDP_TOKEN_URL      | The token endpoint URL of your Identity Provider. Required when AUTH_TYPE is IDP.                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Optional            | ""            | Variable       |
+| IDP_SCOPE          | The scope to request from the IDP token endpoint. Optional when AUTH_TYPE is IDP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Optional            | ""            | Variable       |
+| IDP_AUDIENCE       | The audience to request from the IDP token endpoint. Optional when AUTH_TYPE is IDP.                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Optional            | ""            | Variable       |
 | WEBAPP_ID          | Use the Web App ID that you want to scan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Mandatory           | ""            | Variable       |
 | SCAN_NAME          | Use any name for the scan. The timestamp gets appended automatically.                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Mandatory           | ""            | Variable       |
 | SCAN_TYPE          | This parameter specifies the scan type. Use VULNERABILITY or DISCOVERY as a parameter value.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Mandatory           | ""            | Variable       |
