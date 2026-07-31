@@ -20,5 +20,6 @@ public class Constants {
     public static final String PDF_FORMAT = "PDF";
     public static final String BASIC = "BASIC";
     public static final String OAUTH = "OAUTH";
+    public static final String IDP = "IDP";
 
 }

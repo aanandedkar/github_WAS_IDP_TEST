@@ -85,6 +85,9 @@ public class QualysWASScanBuilder {
     private String clientId;
     private String clientSecret;
     private String qualysIdentificationUrl;
+    private String idpTokenUrl;
+    private String idpScope;
+    private String idpAudience;
 
     public QualysWASScanBuilder(Environment environment) {
         try {
@@ -120,6 +123,9 @@ public class QualysWASScanBuilder {
             this.clientSecret = environment.getProperty("CLIENT_SECRET", "");
             this.platform = environment.getProperty("PLATFORM", "");
             this.qualysIdentificationUrl = "https://www.qualys.com/platform-identification";
+            this.idpTokenUrl = environment.getProperty("IDP_TOKEN_URL", "");
+            this.idpScope = environment.getProperty("IDP_SCOPE", "");
+            this.idpAudience = environment.getProperty("IDP_AUDIENCE", "");
 
             if (StringUtil.notNullNorEmpty(platform)) {
                 this.apiServer = ApiServerUrl.getByKey(platform).getUrl();
@@ -200,6 +206,9 @@ public class QualysWASScanBuilder {
         WASAuth auth = new WASAuth(this.platform);
         if (authType.equals(Constants.BASIC)) {
             auth.setWasCredentials(apiServer, qualysUsername, qualysPasssword, Constants.BASIC);
+        } else if (authType.equals(Constants.IDP)) {
+            auth.setWasIDPCredentials(gatewayServer, clientId, clientSecret, idpTokenUrl, idpScope, idpAudience, Constants.IDP);
+            auth.setIDPOAuthToken();
         } else {
             auth.setWasOAuthCredentials(gatewayServer, clientId, clientSecret, Constants.OAUTH);
             auth.setOAuthKey();
@@ -447,6 +456,11 @@ public class QualysWASScanBuilder {
                 isMandatoryParametersSet = !(clientId == null || clientId.isEmpty() ||
                         clientSecret == null || clientSecret.isEmpty());
                 if (!isMandatoryParametersSet) logger.error("Client ID or Client Secret is not set for Auth-Type: {}", authType);
+            } else if (authType.equals(Constants.IDP) && isMandatoryParametersSet) {
+                isMandatoryParametersSet = !(clientId == null || clientId.isEmpty() ||
+                        clientSecret == null || clientSecret.isEmpty() ||
+                        idpTokenUrl == null || idpTokenUrl.isEmpty());
+                if (!isMandatoryParametersSet) logger.error("Client ID, Client Secret, or IDP Token URL is not set for Auth-Type: {}", authType);
             } else if (authType.equals(Constants.BASIC) && isMandatoryParametersSet) {
                 isMandatoryParametersSet = !(qualysUsername == null || qualysUsername.isEmpty() ||
                         qualysPasssword == null || qualysPasssword.isEmpty());

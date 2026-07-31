@@ -16,9 +16,27 @@ inputs:
   QUALYS_PASSWORD:
     description: "Qualys Password"
     required: true
-  API_SERVER:
-    description: "API Server URL"
+  PLATFORM:
+    description: "Qualys Platform (e.g. US1, US2, EU1, IN1, etc.)"
     required: true
+  AUTH_TYPE:
+    description: "Auth Type (BASIC, OAUTH, or IDP)"
+    required: true
+  CLIENT_ID:
+    description: "Qualys API Client ID (for OAUTH/IDP)"
+    required: false
+  CLIENT_SECRET:
+    description: "Qualys API Client Secret (for OAUTH/IDP)"
+    required: false
+  IDP_TOKEN_URL:
+    description: "IDP Token URL (for IDP auth)"
+    required: false
+  IDP_SCOPE:
+    description: "IDP Scope (for IDP auth)"
+    required: false
+  IDP_AUDIENCE:
+    description: "IDP Audience (for IDP auth)"
+    required: false
   SCAN_NAME:
     description: "Scan Name"
     required: true
@@ -76,8 +94,6 @@ runs:
   steps:
     - name: Setting up GitHub Repository
       uses: actions/checkout@v3
-      with:
-        repository: Qualys/github-action-qwas
       
     - name: Generate Maven Wrapper (if missing)
       run: mvn -N wrapper:wrapper
@@ -113,12 +129,18 @@ runs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
     
     - name: Spinning up Qualys WAS Scan Plugin
-      run: java -jar ./target/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
+      run: java -jar ./target/github-was-action.jar
       id: run-app
       env:
-        API_SERVER: ${{ inputs.API_SERVER }}
+        PLATFORM: ${{ inputs.PLATFORM }}
+        AUTH_TYPE: ${{ inputs.AUTH_TYPE }}
         QUALYS_USERNAME: ${{ inputs.QUALYS_USERNAME }}
         QUALYS_PASSWORD: ${{ inputs.QUALYS_PASSWORD }}
+        CLIENT_ID: ${{ inputs.CLIENT_ID }}
+        CLIENT_SECRET: ${{ inputs.CLIENT_SECRET }}
+        IDP_TOKEN_URL: ${{ inputs.IDP_TOKEN_URL }}
+        IDP_SCOPE: ${{ inputs.IDP_SCOPE }}
+        IDP_AUDIENCE: ${{ inputs.IDP_AUDIENCE }}
         WEBAPP_ID: ${{ inputs.WEBAPP_ID }}
         SCAN_NAME: ${{ inputs.SCAN_NAME }}
         SCAN_TYPE: ${{ inputs.SCAN_TYPE }}
