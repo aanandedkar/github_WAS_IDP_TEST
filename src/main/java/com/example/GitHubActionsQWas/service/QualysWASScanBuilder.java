@@ -205,6 +205,10 @@ public class QualysWASScanBuilder {
     protected void initWASClient() throws Exception {
         logger.info("Using Auth Type: {}", authType);
         WASAuth auth = new WASAuth(this.platform);
+        if (useProxy) {
+            logger.info("Using proxy: {}:{}", proxyServer, proxyPort);
+            auth.setProxyCredentials(proxyServer, proxyPort, proxyUsername, proxyPassword);
+        }
         if (authType.equals(Constants.BASIC)) {
             auth.setWasCredentials(apiServer, qualysUsername, qualysPasssword, Constants.BASIC);
         } else if (authType.equals(Constants.IDP)) {
@@ -214,9 +218,6 @@ public class QualysWASScanBuilder {
             auth.setWasOAuthCredentials(gatewayServer, clientId, clientSecret, Constants.OAUTH);
             auth.setOAuthKey();
         }
-//        if (useProxy) {
-//            auth.setProxyCredentials(proxyServer, proxyPort, proxyUsername, proxyPassword);
-//        }
         client = new WASClient(auth, System.out);
     }
 

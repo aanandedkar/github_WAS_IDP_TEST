@@ -64,6 +64,13 @@ public class WASAuth {
         this.authType = authType;
     }
 
+    public void setProxyCredentials(String proxyServer, int proxyPort, String proxyUsername, String proxyPassword) {
+        this.proxyServer = proxyServer;
+        this.proxyPort = proxyPort;
+        this.proxyUsername = proxyUsername;
+        this.proxyPassword = proxyPassword;
+    }
+
     public void setOAuthKey() throws Exception {
         WASClient client = new WASClient(this);
         CloseableHttpClient httpClient = client.getCloseableHttpClient();
