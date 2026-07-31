@@ -4,13 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum ApiGatewayUrl {
-  US1 ("https://gateway.qualys.com"),
+  US1 ("https://gateway.qg1.apps.qualys.com"),
   US2 ("https://gateway.qg2.apps.qualys.com"),
   US3 ("https://gateway.qg3.apps.qualys.com"),
   US4 ("https://gateway.qg4.apps.qualys.com"),
-  EU1 ("https://gateway.qualys.eu"),
+  GOV1 ("https://gateway.gov1.qualys.us"),
+  EU1 ("https://gateway.qg1.apps.qualys.eu"),
   EU2 ("https://gateway.qg2.apps.qualys.eu"),
-  EU3 ("https://gateway.qg3.apps.qualys.eu"),
+  EU3 ("https://gateway.qg3.apps.qualys.it"),
   IN1 ("https://gateway.qg1.apps.qualys.in"),
   CA1 ("https://gateway.qg1.apps.qualys.ca"),
   AE1 ("https://gateway.qg1.apps.qualys.ae"),

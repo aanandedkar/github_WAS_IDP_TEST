@@ -203,6 +203,7 @@ public class QualysWASScanBuilder {
     }
 
     protected void initWASClient() throws Exception {
+        logger.info("Using Auth Type: {}", authType);
         WASAuth auth = new WASAuth(this.platform);
         if (authType.equals(Constants.BASIC)) {
             auth.setWasCredentials(apiServer, qualysUsername, qualysPasssword, Constants.BASIC);
