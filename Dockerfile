@@ -1,4 +1,4 @@
-FROM art-hq.intranet.qualys.com:5006/secure/distroless/debian12/zing/java-nonroot:24.08.300.0-2-jre17.0.13.0.101
+FROM art-hq.intranet.qualys.com:5006/secure/distroless/debian12/zing/java-nonroot:26.02.101.0-1-jre17.0.18.0.101
 
 USER root
 
