@@ -365,7 +365,7 @@ public class WASClient extends WASBaseClient {
             }
         } catch (Exception ex) {
             response.errored = true;
-            response.errorMessage = apiResponseString;
+            response.errorMessage = apiResponseString.isEmpty() ? ex.getMessage() : apiResponseString;
         }
 
         return response;

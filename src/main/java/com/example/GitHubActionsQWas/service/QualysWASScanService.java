@@ -104,6 +104,9 @@ public class QualysWASScanService {
             }
 
             QualysWASResponse response = apiClient.launchWASScan(requestData);
+            if (response.errored || response.response == null) {
+                throw new Exception("Launch Scan API request failed. Response code: " + response.responseCode + ". Error: " + response.errorMessage);
+            }
             JsonObject result = response.response;
             //parse result
             JsonElement respEl = result.get("ServiceResponse");
