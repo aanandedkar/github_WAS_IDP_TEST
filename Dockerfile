@@ -3,8 +3,8 @@ FROM art-hq.intranet.qualys.com:5006/secure/distroless/debian12/zing/java-nonroo
 USER root
 
 WORKDIR /home/app
-ADD --chown=app:app ./target/github-was-action.jar /home/app/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
-ADD --chown=app:app ./run_service.sh /home/app/run_service.sh
+COPY --chown=app:app ./target/github-was-action.jar /home/app/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
+COPY --chown=app:app ./run_service.sh /home/app/run_service.sh
 
 RUN /busybox/mkdir -p /home/app/outputs
 
