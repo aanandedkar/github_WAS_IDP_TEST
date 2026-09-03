@@ -2,7 +2,6 @@ package com.example.GitHubActionsQWas.WASAuth;
 
 import ch.qos.logback.core.util.StringUtil;
 import com.example.GitHubActionsQWas.WASClient.WASClient;
-import com.example.GitHubActionsQWas.util.ApiServerUrl;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
@@ -26,7 +25,7 @@ public class WASAuth {
     private String clientSecret;
     private String authKey;
     private String authType;
-    private String platform;
+    private String apiServer;
     private String proxyServer;
     private String proxyUsername;
     private String proxyPassword;
@@ -36,8 +35,8 @@ public class WASAuth {
     private String idpAudience;
     private final Logger logger = LoggerFactory.getLogger(WASClient.class);
 
-    public WASAuth(String platform) {
-        this.platform = platform;
+    public WASAuth(String apiServer) {
+        this.apiServer = apiServer;
     }
 
     public void setWasCredentials(String server, String username, String password, String authType) {
@@ -80,8 +79,8 @@ public class WASAuth {
         logger.info("Server returned with ResponseCode: " + httpResponse.getStatusLine().getStatusCode());
         this.authKey = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
         logger.warn("OAUTH Key is generated successfully...");
-        if (StringUtil.notNullNorEmpty(this.platform)) {
-            this.server = ApiServerUrl.getByKey(platform).getUrl();
+        if (StringUtil.notNullNorEmpty(this.apiServer)) {
+            this.server = this.apiServer;
         }
     }
 
@@ -140,8 +139,8 @@ public class WASAuth {
                         jsonResponse.has("token_type") ? jsonResponse.get("token_type").getAsString() : "not specified",
                         jsonResponse.has("expires_in") ? jsonResponse.get("expires_in").getAsString() : "not specified");
                     
-                    if (StringUtil.notNullNorEmpty(this.platform)) {
-                        this.server = ApiServerUrl.getByKey(platform).getUrl();
+                    if (StringUtil.notNullNorEmpty(this.apiServer)) {
+                        this.server = this.apiServer;
                         logger.info("API Server URL set to: {}", this.server);
                     }
                 } else {

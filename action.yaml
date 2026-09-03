@@ -16,8 +16,8 @@ inputs:
   QUALYS_PASSWORD:
     description: "Qualys Password"
     required: true
-  PLATFORM:
-    description: "Qualys Platform (e.g. US1, US2, EU1, IN1, etc.)"
+  API_SERVER:
+    description: "Qualys API Server URL (e.g. https://qualysapi.qualys.com)"
     required: true
   AUTH_TYPE:
     description: "Auth Type (BASIC, OAUTH, or IDP)"
@@ -134,7 +134,7 @@ runs:
       run: java -jar ./target/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
       id: run-app
       env:
-        PLATFORM: ${{ inputs.PLATFORM }}
+        API_SERVER: ${{ inputs.API_SERVER }}
         AUTH_TYPE: ${{ inputs.AUTH_TYPE }}
         QUALYS_USERNAME: ${{ inputs.QUALYS_USERNAME }}
         QUALYS_PASSWORD: ${{ inputs.QUALYS_PASSWORD }}

@@ -54,7 +54,7 @@ jobs:
             uses: Qualys/github_action_qwas@main
             id: was
             with:
-              PLATFORM: ${{ vars.PLATFORM }}
+              API_SERVER: ${{ vars.API_SERVER }}
               AUTH_TYPE: ${{ vars.AUTH_TYPE }}
               QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
               QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
@@ -121,7 +121,7 @@ jobs:
         uses: Qualys/github_action_qwas@main
         id: was
         with:
-          PLATFORM: ${{ vars.PLATFORM }}
+          API_SERVER: ${{ vars.API_SERVER }}
           AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
@@ -185,7 +185,7 @@ jobs:
         uses: Qualys/github_action_qwas@main
         id: was
         with:
-          PLATFORM: ${{ vars.PLATFORM }}
+          API_SERVER: ${{ vars.API_SERVER }}
           AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
@@ -251,7 +251,7 @@ jobs:
         uses: Qualys/github_action_qwas@main
         id: was
         with:
-          PLATFORM: ${{ vars.PLATFORM }}
+          API_SERVER: ${{ vars.API_SERVER }}
           AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
@@ -300,16 +300,17 @@ If repository is private, then add PAT (personal access token) token in the chec
 1. Valid Qualys Credentials and subscription to Qualys WAS and Qualys API.
 2. Use the `actions/checkout@v3` step with` fetch-depth: 0` before calling Qualys WAS GitHub action.
 3. While working on the self-hosted runners, ensure that your machine has stable internet connection.
-4. Set the `AUTH_TYPE` parameter to one of `BASIC`, `OAUTH`, or `IDP`.
-5. Add `QUALYS_PASSWORD` and `CLIENT_SECRET` in `secrets` and remaining parameters to the `repository variables` of Qualys WAS GitHub action.
-6. For `IDP` auth, ensure `IDP_TOKEN_URL` is configured. `IDP_SCOPE` and `IDP_AUDIENCE` are optional.
-7. For `OAUTH` or `IDP` auth, ensure `CLIENT_ID` and `CLIENT_SECRET` are configured.
+4. Set the `API_SERVER` parameter to your Qualys API server URL (e.g. https://qualysapi.qualys.com). [Click here](https://www.qualys.com/platform-identification/) to identify the API server URL for your platform.
+5. Set the `AUTH_TYPE` parameter to one of `BASIC`, `OAUTH`, or `IDP`.
+6. Add `QUALYS_PASSWORD` and `CLIENT_SECRET` in `secrets` and remaining parameters to the `repository variables` of Qualys WAS GitHub action.
+7. For `IDP` auth, ensure `IDP_TOKEN_URL` is configured. `IDP_SCOPE` and `IDP_AUDIENCE` are optional.
+8. For `OAUTH` or `IDP` auth, ensure `CLIENT_ID` and `CLIENT_SECRET` are configured.
 
 ## GitHub action Parameters
 
 | Parameter          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Mandatory/ Optional | Default Value | Parameter Type |
 |--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|---------------|----------------|
-| PLATFORM           | Qualys Platform identifier (e.g. US1, US2, EU1, IN1, etc.). [Click here](https://www.qualys.com/platform-identification/) to identify your platform.                                                                                                                                                                                                                                                                                                                                                                                              | Mandatory           | ""            | Variable       |
+| API_SERVER         | Qualys API Server URL (e.g. https://qualysapi.qualys.com). [Click here](https://www.qualys.com/platform-identification/) to identify the API server URL for your platform. The Qualys gateway URL (used for OAUTH token generation) and portal URL are derived automatically from this value.                                                                                                                                                                                                                                                     | Mandatory           | ""            | Variable       |
 | AUTH_TYPE          | Authentication type. Use one of the following: BASIC: Use Qualys username and password. OAUTH: Use Qualys API client credentials (CLIENT_ID and CLIENT_SECRET). IDP: Use an external Identity Provider with client credentials grant.                                                                                                                                                                                                                                                                                                          | Mandatory           | ""            | Variable       |
 | QUALYS_USERNAME    | Qualys Username. Required when AUTH_TYPE is BASIC.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Variable       |
 | QUALYS_PASSWORD    | Qualys Password. Required when AUTH_TYPE is BASIC.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Secret         |

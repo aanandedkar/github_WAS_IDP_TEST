@@ -92,7 +92,7 @@ class WASClientTest {
 
     @Test
     public void test_response_code_zero() {
-        WASClient client = spy(new WASClient(new WASAuth("US2")));
+        WASClient client = spy(new WASClient(new WASAuth("https://qualysapi.qg2.apps.qualys.com")));
         when(client.getWebAppCount()).thenReturn(null);
         QualysWASResponse response = new QualysWASResponse();
         response.responseCode = -1;
@@ -125,7 +125,7 @@ class WASClientTest {
         mockResponse.response = responseObject;
 
         // Mock getWebAppCount() to return the mock response
-        WASClient wasClient = spy(new WASClient(new WASAuth("US2")));
+        WASClient wasClient = spy(new WASClient(new WASAuth("https://qualysapi.qg2.apps.qualys.com")));
         Mockito.when(wasClient.getWebAppCount()).thenReturn(mockResponse);
 
         // Test the behavior
@@ -236,7 +236,7 @@ class WASClientTest {
     @Test
     public void test_returns_qualyswasresponse_object() {
         // Arrange
-        WASAuth auth = new WASAuth("US2");
+        WASAuth auth = new WASAuth("https://qualysapi.qg2.apps.qualys.com");
         auth.setWasCredentials("https://example.com", "username", "password", "BASIC");
         WASClient wasClient = new WASClient(auth);
         JsonObject requestData = new JsonObject();

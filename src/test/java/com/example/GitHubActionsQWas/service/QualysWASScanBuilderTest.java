@@ -20,6 +20,7 @@ public class QualysWASScanBuilderTest {
     @Before
     public void setup() {
         when(environment.getProperty("API_SERVER", "")).thenReturn("https://example.com");
+        when(environment.getProperty("AUTH_TYPE", "")).thenReturn("BASIC");
         when(environment.getProperty("QUALYS_USERNAME", "")).thenReturn("qualusUsername");
         when(environment.getProperty("QUALYS_PASSWORD", "")).thenReturn("qualysPassword");
         when(environment.getProperty("USE_PROXY", Boolean.class, false)).thenReturn(false);
@@ -43,7 +44,7 @@ public class QualysWASScanBuilderTest {
         when(environment.getProperty("EXCLUDE", "")).thenReturn("");
         when(environment.getProperty("FAIL_ON_SCAN_ERROR", Boolean.class, false)).thenReturn(false);
         when(environment.getProperty("WAIT_FOR_RESULT", Boolean.class, true)).thenReturn(true);
-        when(environment.getProperty("INTERVAL", Integer.class, 5)).thenReturn(5);
+        when(environment.getProperty("INTERVAL", Integer.class, 1)).thenReturn(5);
         when(environment.getProperty("TIMEOUT", Integer.class, (60 * 5) + 50)).thenReturn(350);
 
         builder = spy(new QualysWASScanBuilder(environment));

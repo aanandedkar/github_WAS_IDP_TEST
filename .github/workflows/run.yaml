@@ -68,7 +68,7 @@ jobs:
         run: java -jar ./GitHubActionsQWas-0.0.1-SNAPSHOT.jar
         id: run-app
         env:
-          PLATFORM: ${{ vars.PLATFORM }}
+          API_SERVER: ${{ vars.API_SERVER }}
           AUTH_TYPE: ${{ vars.AUTH_TYPE }}
           QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
           QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}

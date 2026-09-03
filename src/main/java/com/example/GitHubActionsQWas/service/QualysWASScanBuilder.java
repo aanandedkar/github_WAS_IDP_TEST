@@ -5,10 +5,7 @@ import com.example.GitHubActionsQWas.WASAuth.WASAuth;
 import com.example.GitHubActionsQWas.WASClient.QualysWASResponse;
 import com.example.GitHubActionsQWas.WASClient.WASClient;
 import com.example.GitHubActionsQWas.constants.Constants;
-import com.example.GitHubActionsQWas.util.ApiGatewayUrl;
-import com.example.GitHubActionsQWas.util.ApiServerUrl;
 import com.example.GitHubActionsQWas.util.Helper;
-import com.example.GitHubActionsQWas.util.PortalUrl;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -40,7 +37,6 @@ public class QualysWASScanBuilder {
     private String apiServer;
     private String portalServer;
     private String gatewayServer;
-    private String platform;
     private String qualysUsername;
     private String qualysPasssword;
     private boolean useProxy = false;
@@ -121,18 +117,18 @@ public class QualysWASScanBuilder {
             this.authType = environment.getProperty("AUTH_TYPE", "");
             this.clientId = environment.getProperty("CLIENT_ID", "");
             this.clientSecret = environment.getProperty("CLIENT_SECRET", "");
-            this.platform = environment.getProperty("PLATFORM", "");
+            this.apiServer = environment.getProperty("API_SERVER", "");
             this.qualysIdentificationUrl = "https://www.qualys.com/platform-identification";
             this.idpTokenUrl = environment.getProperty("IDP_TOKEN_URL", "");
             this.idpScope = environment.getProperty("IDP_SCOPE", "");
             this.idpAudience = environment.getProperty("IDP_AUDIENCE", "");
 
-            if (StringUtil.notNullNorEmpty(platform)) {
-                this.apiServer = ApiServerUrl.getByKey(platform).getUrl();
-                this.portalServer = PortalUrl.getByKey(platform).getUrl();
-                this.gatewayServer = ApiGatewayUrl.getByKey(platform).getUrl();
+            if (StringUtil.notNullNorEmpty(apiServer)) {
+                this.apiServer = Helper.normalizeUrl(apiServer);
+                this.portalServer = Helper.derivePortalUrl(this.apiServer);
+                this.gatewayServer = Helper.deriveGatewayUrl(this.apiServer);
             } else {
-                throw new Exception("PLATFORM not specified, Please configure it and try again. Please visit following url to identify correct platform: " +
+                throw new Exception("API_SERVER not specified, Please configure it and try again. Please visit following url to identify correct API server URL for your platform: " +
                         qualysIdentificationUrl);
             }
 
@@ -204,11 +200,11 @@ public class QualysWASScanBuilder {
 
     protected void initWASClient() throws Exception {
         logger.info("Using Auth Type: {}", authType);
-        WASAuth auth = new WASAuth(this.platform);
+        WASAuth auth = new WASAuth(this.apiServer);
         if (authType.equals(Constants.BASIC)) {
             auth.setWasCredentials(apiServer, qualysUsername, qualysPasssword, Constants.BASIC);
         } else if (authType.equals(Constants.IDP)) {
-            auth.setWasIDPCredentials(gatewayServer, clientId, clientSecret, idpTokenUrl, idpScope, idpAudience, Constants.IDP);
+            auth.setWasIDPCredentials(apiServer, clientId, clientSecret, idpTokenUrl, idpScope, idpAudience, Constants.IDP);
             auth.setIDPOAuthToken();
         } else {
             auth.setWasOAuthCredentials(gatewayServer, clientId, clientSecret, Constants.OAUTH);
@@ -449,7 +445,6 @@ public class QualysWASScanBuilder {
                 this.webAppId == null || this.webAppId.isEmpty() ||
                 this.scanName == null || this.scanName.isEmpty() ||
                 this.scanType == null || this.scanType.isEmpty() ||
-                this.platform == null || this.platform.isEmpty() ||
                 this.authType == null || this.authType.isEmpty());
 
         if (authType != null && !authType.isEmpty()) {
