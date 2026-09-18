@@ -13,7 +13,7 @@ This README document explains how to use the Qualys WAS GitHub Action and gives 
 
 ## How to use the Qualys WAS GitHub Action
 
-1. Visit [GitHub configuration a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow) to enable GitHub Action in your repository.
+1. Visit [GitHub configuring a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow) to enable GitHub Action in your repository.
    [configuring-a-workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow)
 2. Subscribe to Qualys WAS module and obtain Qualys credentials.
 3. Choose an authentication type (`AUTH_TYPE`): `BASIC`, `OAUTH`, or `IDP`.
@@ -22,7 +22,7 @@ This README document explains how to use the Qualys WAS GitHub Action and gives 
    - **IDP**: Use an external Identity Provider (IDP) with client credentials grant. Requires `IDP_TOKEN_URL`, and optionally `IDP_SCOPE` and `IDP_AUDIENCE`.
 4. Create GitHub Secrets and variables. Refer to GitHub Action Parameter section below to learn about the parameters.
    Refer to [Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for more details on how to set up secrets.
-5. Configure your workflow. In the actions steps of run.yaml file use `Qualys/github_action_qwas@main`
+5. Configure your workflow. In the actions steps of run.yaml file use `Qualys/github-action-qwas@main`
 6. You can use the Input Parameters to customize GitHub Action as per your requirements.
 
 Note: The `actions/checkout` step is required to run before the scan action, otherwise the action does not have access to the Web apps to be scanned.
@@ -51,7 +51,7 @@ jobs:
                 fetch-depth: 0
     
           - name: Qualys WAS scan action step
-            uses: Qualys/github_action_qwas@main
+            uses: Qualys/github-action-qwas@main
             id: was
             with:
               API_SERVER: ${{ vars.API_SERVER }}
@@ -83,7 +83,7 @@ jobs:
 ```
 
 To download the scan result in your repository, checkout the repository using below code. 
-If the repository is private, then add PAT (personal access token) token in the checkout step.
+If the repository is private, then add a PAT (personal access token) in the checkout step.
 ```yaml
           - name: checkout code
             uses: actions/checkout@v3
@@ -100,7 +100,7 @@ If the repository is private, then add PAT (personal access token) token in the 
              path: PATH_TO_TARGET_DIRECTORY 
 ```
 ### Scan Web App in your repository on pull request event
-Refer to the below sample to scan web applications in your repository on pull event.
+Refer to the below sample to scan web applications in your repository on pull request event.
 ```yaml
 name: Qualys WAS Scan 
 on:
@@ -118,7 +118,7 @@ jobs:
           fetch-depth: 0
       
       - name: Qualys WAS scan action step
-        uses: Qualys/github_action_qwas@main
+        uses: Qualys/github-action-qwas@main
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
@@ -149,7 +149,7 @@ jobs:
           FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
-If repository is private, then add PAT (personal access token) token in the checkout step.
+If the repository is private, then add a PAT (personal access token) in the checkout step.
 ```yaml
       - name: checkout code
         uses: actions/checkout@v3
@@ -169,7 +169,7 @@ If repository is private, then add PAT (personal access token) token in the chec
 ### Scan Web App in your repository on manual trigger
 Refer to the below sample to scan web applications in your repository on manual trigger event.
 ```yaml
-name: Qualys IAC Scan 
+name: Qualys WAS Scan 
 on: workflow_dispatch
 jobs:
   Qualys_was_scan:
@@ -182,7 +182,7 @@ jobs:
           fetch-depth: 0
       
       - name: Qualys WAS scan action step
-        uses: Qualys/github_action_qwas@main
+        uses: Qualys/github-action-qwas@main
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
@@ -213,7 +213,7 @@ jobs:
           FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
-If repository is private, then add PAT (personal access token) token in the checkout step.
+If the repository is private, then add a PAT (personal access token) in the checkout step.
 ```yaml
       - name: checkout code
         uses: actions/checkout@v3
@@ -233,7 +233,7 @@ If repository is private, then add PAT (personal access token) token in the chec
 ### Scan Web Application on Scheduled Trigger
 Refer to the below sample to scan web applications in your repository on scheduled trigger events.
 ```yaml
-name: Qualys IAC Scan 
+name: Qualys WAS Scan 
 on: 
     schedule:
         - cron: '30 5 * * 1,3'
@@ -248,7 +248,7 @@ jobs:
           fetch-depth: 0
       
       - name: Qualys WAS scan action step
-        uses: Qualys/github_action_qwas@main
+        uses: Qualys/github-action-qwas@main
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
@@ -279,7 +279,7 @@ jobs:
           FILE_TYPE: ${{ vars.FILE_TYPE }}
 ```
 To download the scan result in your repository, checkout the repository using the following code.
-If repository is private, then add PAT (personal access token) token in the checkout step.
+If the repository is private, then add a PAT (personal access token) in the checkout step.
 ```yaml
       - name: checkout code
         uses: actions/checkout@v3
@@ -296,7 +296,7 @@ If repository is private, then add PAT (personal access token) token in the chec
            path: PATH_TO_TARGET_DIRECTORY
 ```
 
-## Prerequisites for Qualys WAS GithHub Action
+## Prerequisites for Qualys WAS GitHub Action
 1. Valid Qualys Credentials and subscription to Qualys WAS and Qualys API.
 2. Use the `actions/checkout@v3` step with` fetch-depth: 0` before calling Qualys WAS GitHub action.
 3. While working on the self-hosted runners, ensure that your machine has stable internet connection.
