@@ -3,7 +3,7 @@ name: Qualys WAS Scan GitHub Actions
 on:
   push:
     branches:
-      - main
+      - feature/QINT-22486-IDP
   workflow_dispatch:
 
 jobs:
@@ -94,6 +94,7 @@ jobs:
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
+          SEND_MAIL: ${{ vars.SEND_MAIL }}
         continue-on-error: true
       
       - name: Upload Scan Report
@@ -102,6 +103,7 @@ jobs:
           name: Qualys_WAS_Scan_Result
           path: ./outputs
           if-no-files-found: ignore
+          retention-days: 7
           
       - name: Check build status
         if: steps.run-app.outcome != 'success'
