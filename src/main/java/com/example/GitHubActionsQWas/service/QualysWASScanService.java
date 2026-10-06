@@ -45,6 +45,7 @@ public class QualysWASScanService {
     private JsonObject criteriaObject;
     private WASClient apiClient;
     private boolean failOnScanError;
+    private boolean sendMail;
 
     protected String launchScan() {
         JsonObject requestData = new JsonObject();
@@ -82,6 +83,10 @@ public class QualysWASScanService {
             if (cancelHours != null && cancelOptions && !cancelHours.isEmpty()) {
 
                 wasScan.addProperty("cancelAfterNHours", cancelHours);
+            }
+
+            if (!sendMail) {
+                wasScan.addProperty("sendMail", false);
             }
 
             wasScan.add("target", webApp);

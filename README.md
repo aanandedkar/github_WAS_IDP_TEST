@@ -81,6 +81,7 @@ jobs:
               TIMEOUT: ${{ vars.TIMEOUT }}
               FILE_TYPE: ${{ vars.FILE_TYPE }}
               ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
+              SEND_MAIL: ${{ vars.SEND_MAIL }}
 ```
 
 To download the scan result in your repository, checkout the repository using below code. 
@@ -149,6 +150,7 @@ jobs:
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
           ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
+          SEND_MAIL: ${{ vars.SEND_MAIL }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
 If the repository is private, then add a PAT (personal access token) in the checkout step.
@@ -214,6 +216,7 @@ jobs:
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
           ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
+          SEND_MAIL: ${{ vars.SEND_MAIL }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
 If the repository is private, then add a PAT (personal access token) in the checkout step.
@@ -281,6 +284,7 @@ jobs:
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
           ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
+          SEND_MAIL: ${{ vars.SEND_MAIL }}
 ```
 To download the scan result in your repository, checkout the repository using the following code.
 If the repository is private, then add a PAT (personal access token) in the checkout step.
@@ -341,15 +345,15 @@ If the repository is private, then add a PAT (personal access token) in the chec
 | EXCLUDE            | Use the QIDs separated by commas to exclude them from the scan. For example, 1234, 1345. This will exclude these two QIDs for vulnerability severity level failure conditions.                                                                                                                                                                                                                                                                                                                                                                   | Optional            | ""            | Variable       |
 | FILE_TYPE          | This parameter specifies the file format in which user wants the scan report                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Optional            | "PDF"         | Variable       |
 | ARTIFACT_RETENTION_DAYS | Number of days (1-90) to retain the `Qualys_WAS_Scan_Result` artifact. The artifact contains the raw scan JSON and the report, which disclose vulnerable URLs and findings, so keep this short. If not set, the repository/organization artifact retention setting applies (GitHub default: 90 days).                                                                                                                                                                                                                                      | Optional            | ""            | Variable       |
+| SEND_MAIL          | Controls the "scan complete" email notification sent by the WAS module. true: email is sent (default WAS behavior). false: `sendMail=false` no notification email is sent.                                                                                                                                                                                                                                                                                                                                    | Optional            | true          | Variable       |
 Note: The Parameter values given in the above table are case-sensitive.
 
 ## Security Recommendations
 
-- **Pin the action version.** Use a release tag (`Qualys/github-action-qwas@v2.1.0`) or a full commit SHA. The action builds and runs the code at the same ref you pin, so the pin is your control over what executes.
+- **Pin the action version.** Use a release tag Eg.(`Qualys/github-action-qwas@v2.1.0`) or a full commit SHA. The action builds and runs the code at the same ref you pin and what executes.
 - **Least privilege.** Set `permissions: contents: read` on the workflow or job. The action never writes to your repository.
 - **Store credentials as secrets.** `QUALYS_PASSWORD` and `CLIENT_SECRET` must be GitHub Secrets, not variables.
 - **Use HTTPS.** `API_SERVER` must start with `https://`; the action fails fast otherwise.
-- **Limit artifact exposure.** Scan artifacts are downloadable by anyone with read access to the repository. Set `ARTIFACT_RETENTION_DAYS` to a short value, and avoid running scans from public repositories.
 
 ## Release Notes
 
@@ -357,11 +361,10 @@ Note: The Parameter values given in the above table are case-sensitive.
 
 Security hardening release. Upgrading is recommended for all users; older tags (`v1.x`) continue to build from the `main` branch at run time and do not receive the fixes below.
 
+- **New authentication type `IDP`.** `AUTH_TYPE` now accepts `IDP` for external Identity Provider authentication using the client credentials grant. Requires `CLIENT_ID`, `CLIENT_SECRET`, and `IDP_TOKEN_URL`; `IDP_SCOPE` and `IDP_AUDIENCE` are optional.
 - **Action code is now pinned to the version you use.** The action previously checked out its own repository at the default branch (`main`) on every run, regardless of the tag in your `uses:` line. It now checks out the same ref you pinned (tag or commit SHA), into a dedicated `qwas-action/` directory so your repository checkout is no longer overwritten.
-- **Maven Wrapper integrity checks.** `distributionSha256Sum` and `wrapperSha256Sum` are set in `.mvn/wrapper/maven-wrapper.properties`; the build refuses to run a tampered Maven distribution or wrapper JAR. The step that regenerated the wrapper on every run has been removed.
+- **Maven Wrapper integrity checks.** `distributionSha256Sum` and `wrapperSha256Sum` are set in `.mvn/wrapper/maven-wrapper.properties`; the build refuses to run a tampered Maven distribution or wrapper JAR.
 - **HTTPS enforced for `API_SERVER`.** Plain `http://` URLs are rejected before any credentials are sent.
-- **Report download path hardening.** The filename from the server's `Content-Disposition` header is sanitized so the report can only be written inside `outputs/`.
 - **New input `ARTIFACT_RETENTION_DAYS`.** Lets you control how long the scan result artifact is kept. Defaults to your repository/organization setting, so existing workflows are unaffected.
+- **New input `SEND_MAIL`.** Controls the scan-complete email notification. Default `true` (email sent). Set to `false` to pass `sendMail=false` and disable notification emails.
 - `actions/checkout` bumped to `v4`.
-
-**Upgrade:** change `uses: Qualys/github-action-qwas@main` (or `@v1.x`) to `uses: Qualys/github-action-qwas@<release-tag>` in your workflow. No other changes are required.

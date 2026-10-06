@@ -91,6 +91,9 @@ inputs:
   ARTIFACT_RETENTION_DAYS:
     description: "Days to retain the scan result artifact (1-90). Defaults to the repository/organization artifact retention setting."
     required: false
+  SEND_MAIL:
+    description: "Send scan complete email notifications (default true). Set to false to disable."
+    required: false
 
 runs:
   using: composite
@@ -166,6 +169,7 @@ runs:
         INTERVAL: ${{ inputs.INTERVAL }}
         TIMEOUT: ${{ inputs.TIMEOUT }}
         FILE_TYPE: ${{ inputs.FILE_TYPE }}
+        SEND_MAIL: ${{ inputs.SEND_MAIL }}
       continue-on-error: true
       shell: bash
     

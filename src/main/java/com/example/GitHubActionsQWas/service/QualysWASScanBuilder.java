@@ -84,6 +84,7 @@ public class QualysWASScanBuilder {
     private String idpTokenUrl;
     private String idpScope;
     private String idpAudience;
+    private boolean sendMail;
 
     public QualysWASScanBuilder(Environment environment) {
         try {
@@ -122,6 +123,7 @@ public class QualysWASScanBuilder {
             this.idpTokenUrl = environment.getProperty("IDP_TOKEN_URL", "");
             this.idpScope = environment.getProperty("IDP_SCOPE", "");
             this.idpAudience = environment.getProperty("IDP_AUDIENCE", "");
+            this.sendMail = environment.getProperty("SEND_MAIL", Boolean.class, true);
 
             if (StringUtil.notNullNorEmpty(apiServer)) {
                 this.apiServer = Helper.normalizeUrl(apiServer);
@@ -273,7 +275,7 @@ public class QualysWASScanBuilder {
                     isFailConditionConfigured = true;
                 }
 
-                QualysWASScanService service = QualysWASScanService.builder().webAppId(webAppId).scanName(scanName).scanType(scanType).authRecord(authRecord).authRecordId(authRecordId).optionProfile(optionProfile).optionProfileId(optionProfileId).cancelOptions(cancelOptions).cancelHours(cancelHours).isFailConditionsConfigured(isFailConditionConfigured).pollingIntervalForVulns(Helper.setTimeoutInMinutes("pollingInterval", DEFAULT_POLLING_INTERVAL_FOR_VULNS, pollingInterval)).vulnsTimeout(Helper.setTimeoutInMinutes("vulnsTimeout", DEFAULT_TIMEOUT_FOR_VULNS, vulnsTimeout)).criteriaObject(getCriteriaAsJsonObject()).apiServer(apiServer).apiUser(qualysUsername).apiPass(qualysPasssword).useProxy(useProxy).proxyServer(proxyServer).proxyPort(proxyPort).proxyUsername(proxyUsername).proxyPassword(proxyPassword).portalUrl(portalServer).failOnScanError(isFailOnScanError).apiClient(client).build();
+                QualysWASScanService service = QualysWASScanService.builder().webAppId(webAppId).scanName(scanName).scanType(scanType).authRecord(authRecord).authRecordId(authRecordId).optionProfile(optionProfile).optionProfileId(optionProfileId).cancelOptions(cancelOptions).cancelHours(cancelHours).isFailConditionsConfigured(isFailConditionConfigured).pollingIntervalForVulns(Helper.setTimeoutInMinutes("pollingInterval", DEFAULT_POLLING_INTERVAL_FOR_VULNS, pollingInterval)).vulnsTimeout(Helper.setTimeoutInMinutes("vulnsTimeout", DEFAULT_TIMEOUT_FOR_VULNS, vulnsTimeout)).criteriaObject(getCriteriaAsJsonObject()).apiServer(apiServer).apiUser(qualysUsername).apiPass(qualysPasssword).useProxy(useProxy).proxyServer(proxyServer).proxyPort(proxyPort).proxyUsername(proxyUsername).proxyPassword(proxyPassword).portalUrl(portalServer).failOnScanError(isFailOnScanError).sendMail(sendMail).apiClient(client).build();
 
                 logger.info("Qualys task - Started Launching web app scanning with WAS");
                 String scanId = launchWasScan(service);
