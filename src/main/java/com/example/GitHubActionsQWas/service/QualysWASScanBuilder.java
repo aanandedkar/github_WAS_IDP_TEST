@@ -125,6 +125,9 @@ public class QualysWASScanBuilder {
 
             if (StringUtil.notNullNorEmpty(apiServer)) {
                 this.apiServer = Helper.normalizeUrl(apiServer);
+                if (!this.apiServer.toLowerCase().startsWith("https://")) {
+                    throw new Exception("API_SERVER must use https:// protocol. Got: " + this.apiServer);
+                }
                 this.portalServer = Helper.derivePortalUrl(this.apiServer);
                 this.gatewayServer = Helper.deriveGatewayUrl(this.apiServer);
             } else {

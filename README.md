@@ -22,7 +22,7 @@ This README document explains how to use the Qualys WAS GitHub Action and gives 
    - **IDP**: Use an external Identity Provider (IDP) with client credentials grant. Requires `IDP_TOKEN_URL`, and optionally `IDP_SCOPE` and `IDP_AUDIENCE`.
 4. Create GitHub Secrets and variables. Refer to GitHub Action Parameter section below to learn about the parameters.
    Refer to [Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for more details on how to set up secrets.
-5. Configure your workflow. In the actions steps of run.yaml file use `Qualys/github-action-qwas@main`
+5. Configure your workflow. In the actions steps of run.yaml file use `Qualys/github-action-qwas@<release-tag>` (or a full commit SHA). See [Releases](https://github.com/Qualys/github-action-qwas/releases) for the latest version.
 6. You can use the Input Parameters to customize GitHub Action as per your requirements.
 
 Note: The `actions/checkout` step is required to run before the scan action, otherwise the action does not have access to the Web apps to be scanned.
@@ -51,7 +51,7 @@ jobs:
                 fetch-depth: 0
     
           - name: Qualys WAS scan action step
-            uses: Qualys/github-action-qwas@main
+            uses: Qualys/github-action-qwas@<release-tag>
             id: was
             with:
               API_SERVER: ${{ vars.API_SERVER }}
@@ -80,6 +80,7 @@ jobs:
               INTERVAL: ${{ vars.INTERVAL }}
               TIMEOUT: ${{ vars.TIMEOUT }}
               FILE_TYPE: ${{ vars.FILE_TYPE }}
+              ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
 ```
 
 To download the scan result in your repository, checkout the repository using below code. 
@@ -118,7 +119,7 @@ jobs:
           fetch-depth: 0
       
       - name: Qualys WAS scan action step
-        uses: Qualys/github-action-qwas@main
+        uses: Qualys/github-action-qwas@<release-tag>
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
@@ -147,6 +148,7 @@ jobs:
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
+          ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
 If the repository is private, then add a PAT (personal access token) in the checkout step.
@@ -182,7 +184,7 @@ jobs:
           fetch-depth: 0
       
       - name: Qualys WAS scan action step
-        uses: Qualys/github-action-qwas@main
+        uses: Qualys/github-action-qwas@<release-tag>
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
@@ -211,6 +213,7 @@ jobs:
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
+          ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
 ```
 To download the scan result in your repository, checkout the repository using the following code. 
 If the repository is private, then add a PAT (personal access token) in the checkout step.
@@ -248,7 +251,7 @@ jobs:
           fetch-depth: 0
       
       - name: Qualys WAS scan action step
-        uses: Qualys/github-action-qwas@main
+        uses: Qualys/github-action-qwas@<release-tag>
         id: was
         with:
           API_SERVER: ${{ vars.API_SERVER }}
@@ -277,6 +280,7 @@ jobs:
           INTERVAL: ${{ vars.INTERVAL }}
           TIMEOUT: ${{ vars.TIMEOUT }}
           FILE_TYPE: ${{ vars.FILE_TYPE }}
+          ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
 ```
 To download the scan result in your repository, checkout the repository using the following code.
 If the repository is private, then add a PAT (personal access token) in the checkout step.
@@ -310,7 +314,7 @@ If the repository is private, then add a PAT (personal access token) in the chec
 
 | Parameter          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Mandatory/ Optional | Default Value | Parameter Type |
 |--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|---------------|----------------|
-| API_SERVER         | Qualys API Server URL (e.g. https://qualysapi.qualys.com). [Click here](https://www.qualys.com/platform-identification/) to identify the API server URL for your platform. The Qualys gateway URL (used for OAUTH token generation) and portal URL are derived automatically from this value.                                                                                                                                                                                                                                                     | Mandatory           | ""            | Variable       |
+| API_SERVER         | Qualys API Server URL (e.g. https://qualysapi.qualys.com). Must use `https://`; the action rejects plain `http://` URLs. [Click here](https://www.qualys.com/platform-identification/) to identify the API server URL for your platform. The Qualys gateway URL (used for OAUTH token generation) and portal URL are derived automatically by the action from this value.                                                                                                                                                                                                                                                     | Mandatory           | ""            | Variable       |
 | AUTH_TYPE          | Authentication type. Use one of the following: BASIC: Use Qualys username and password. OAUTH: Use Qualys API client credentials (CLIENT_ID and CLIENT_SECRET). IDP: Use an external Identity Provider with client credentials grant.                                                                                                                                                                                                                                                                                                          | Mandatory           | ""            | Variable       |
 | QUALYS_USERNAME    | Qualys Username. Required when AUTH_TYPE is BASIC.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Variable       |
 | QUALYS_PASSWORD    | Qualys Password. Required when AUTH_TYPE is BASIC.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Optional            | ""            | Secret         |
@@ -336,4 +340,28 @@ If the repository is private, then add a PAT (personal access token) in the chec
 | TIMEOUT            | Use the numeric value to set the timeout duration in minutes to check the scan results. For example, 60. The default value of TIMEOUT is 350 min. Note: The timeout limit for GitHub-hosted runners is 360 minutes. On GitHub-hosted runners, you cannot run the job for more than 360 minutes. However, in self-hosted runners, there is no limit on timeout, and you can set a timeout for more than 360 minutes.                                                                                                                              | Optional            | 350           | Variable       |
 | EXCLUDE            | Use the QIDs separated by commas to exclude them from the scan. For example, 1234, 1345. This will exclude these two QIDs for vulnerability severity level failure conditions.                                                                                                                                                                                                                                                                                                                                                                   | Optional            | ""            | Variable       |
 | FILE_TYPE          | This parameter specifies the file format in which user wants the scan report                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Optional            | "PDF"         | Variable       |
+| ARTIFACT_RETENTION_DAYS | Number of days (1-90) to retain the `Qualys_WAS_Scan_Result` artifact. The artifact contains the raw scan JSON and the report, which disclose vulnerable URLs and findings, so keep this short. If not set, the repository/organization artifact retention setting applies (GitHub default: 90 days).                                                                                                                                                                                                                                      | Optional            | ""            | Variable       |
 Note: The Parameter values given in the above table are case-sensitive.
+
+## Security Recommendations
+
+- **Pin the action version.** Use a release tag (`Qualys/github-action-qwas@v2.1.0`) or a full commit SHA. The action builds and runs the code at the same ref you pin, so the pin is your control over what executes.
+- **Least privilege.** Set `permissions: contents: read` on the workflow or job. The action never writes to your repository.
+- **Store credentials as secrets.** `QUALYS_PASSWORD` and `CLIENT_SECRET` must be GitHub Secrets, not variables.
+- **Use HTTPS.** `API_SERVER` must start with `https://`; the action fails fast otherwise.
+- **Limit artifact exposure.** Scan artifacts are downloadable by anyone with read access to the repository. Set `ARTIFACT_RETENTION_DAYS` to a short value, and avoid running scans from public repositories.
+
+## Release Notes
+
+### v2.1.0
+
+Security hardening release. Upgrading is recommended for all users; older tags (`v1.x`) continue to build from the `main` branch at run time and do not receive the fixes below.
+
+- **Action code is now pinned to the version you use.** The action previously checked out its own repository at the default branch (`main`) on every run, regardless of the tag in your `uses:` line. It now checks out the same ref you pinned (tag or commit SHA), into a dedicated `qwas-action/` directory so your repository checkout is no longer overwritten.
+- **Maven Wrapper integrity checks.** `distributionSha256Sum` and `wrapperSha256Sum` are set in `.mvn/wrapper/maven-wrapper.properties`; the build refuses to run a tampered Maven distribution or wrapper JAR. The step that regenerated the wrapper on every run has been removed.
+- **HTTPS enforced for `API_SERVER`.** Plain `http://` URLs are rejected before any credentials are sent.
+- **Report download path hardening.** The filename from the server's `Content-Disposition` header is sanitized so the report can only be written inside `outputs/`.
+- **New input `ARTIFACT_RETENTION_DAYS`.** Lets you control how long the scan result artifact is kept. Defaults to your repository/organization setting, so existing workflows are unaffected.
+- `actions/checkout` bumped to `v4`.
+
+**Upgrade:** change `uses: Qualys/github-action-qwas@main` (or `@v1.x`) to `uses: Qualys/github-action-qwas@<release-tag>` in your workflow. No other changes are required.

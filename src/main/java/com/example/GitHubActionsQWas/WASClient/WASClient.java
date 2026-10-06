@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -133,6 +134,10 @@ public class WASClient extends WASBaseClient {
                 String fileName = "downloaded.pdf"; // Default name
                 if (contentDisposition.contains("filename=")) {
                     fileName = contentDisposition.split("filename=")[1].trim().replace("\"", "");
+                    fileName = new File(fileName.replace('\\', '/')).getName();
+                    if (fileName.isEmpty() || fileName.equals(".") || fileName.equals("..")) {
+                        fileName = "downloaded.pdf";
+                    }
                     fileName = Helper.getCompleteFileName(fileName);
                 }
 

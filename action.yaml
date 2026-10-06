@@ -88,23 +88,27 @@ inputs:
   FILE_TYPE:
     description: "File format to download artifact"
     required: false
+  ARTIFACT_RETENTION_DAYS:
+    description: "Days to retain the scan result artifact (1-90). Defaults to the repository/organization artifact retention setting."
+    required: false
 
 runs:
   using: composite
   steps:
     - name: Setting up GitHub Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      env:
+        ACTION_REF: ${{ github.action_ref }}
       with:
         repository: Qualys/github-action-qwas
+        ref: ${{ env.ACTION_REF }}
+        path: qwas-action
       
-    - name: Generate Maven Wrapper (if missing)
-      run: mvn -N wrapper:wrapper
-      shell: bash
-  
     - name: Setting up Maven Wrapper
       if: runner.os != 'Windows'
       run: chmod +x ./mvnw
       shell: bash
+      working-directory: qwas-action
     
     - name: Setting up Java Environment
       uses: actions/setup-java@v3
@@ -116,23 +120,25 @@ runs:
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-maven-${{ hashFiles('qwas-action/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
     
     - name: Building plugin with Maven
       run: ./mvnw clean package
       shell: bash
+      working-directory: qwas-action
     
     - name: Storing Maven dependencies in cache
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-maven-${{ hashFiles('qwas-action/pom.xml') }}
     
     - name: Spinning up Qualys WAS Scan Plugin
       run: java -jar ./target/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
       id: run-app
+      working-directory: qwas-action
       env:
         API_SERVER: ${{ inputs.API_SERVER }}
         AUTH_TYPE: ${{ inputs.AUTH_TYPE }}
@@ -167,7 +173,8 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: Qualys_WAS_Scan_Result
-        path: ./outputs/
+        path: qwas-action/outputs/
+        retention-days: ${{ inputs.ARTIFACT_RETENTION_DAYS }}
     
     - name: Checking for Qualys WAS Scan Plugin Failure
       if: steps.run-app.outcome != 'success'
