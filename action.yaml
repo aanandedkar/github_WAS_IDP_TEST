@@ -128,7 +128,7 @@ runs:
           ${{ runner.os }}-maven-
     
     - name: Building plugin with Maven
-      run: ./mvnw clean package
+      run: pwd && ./mvnw clean package
       shell: bash
       working-directory: qwas-action
     
