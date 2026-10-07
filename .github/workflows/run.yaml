@@ -10,43 +10,41 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        
-      - name: Debug workspace layout
-        run: |
-          echo "workspace: $GITHUB_WORKSPACE"
-          ls -la "$GITHUB_WORKSPACE"
-          echo "--- inside qwas-action (if present) ---"
-          ls -la qwas-action 2>/dev/null || echo "no qwas-action dir — action.yaml not invoked in this workflow"
-          echo "--- ref checked out ---"
-          git rev-parse HEAD
-        shell: bash
+      - name: Setting up GitHub Repository
+        uses: actions/checkout@v4
+        env:
+          ACTION_REF: ${{ github.sha }}
+        with:
+          repository: aanandedkar/github_WAS_IDP_TEST
+          ref: ${{ env.ACTION_REF }}
+          path: qwas-action
 
-      - name: Set up JDK 17
+      - name: Setting up Maven Wrapper
+        run: chmod +x ./mvnw
+        working-directory: qwas-action
+
+      - name: Setting up Java Environment
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'oracle'
 
-      - name: Verify Maven Wrapper checksums
-        run: |
-          echo "--- Expected checksums from maven-wrapper.properties ---"
-          grep -E "Sha256Sum" .mvn/wrapper/maven-wrapper.properties
-          echo "--- Actual SHA-256 of committed maven-wrapper.jar ---"
-          sha256sum .mvn/wrapper/maven-wrapper.jar
-          echo "--- Running mvnw (validates wrapper JAR, then downloads & validates Maven dist) ---"
-          chmod +x ./mvnw
-          ./mvnw -v
-          echo "--- Actual SHA-256 of downloaded Maven distribution ---"
-          find ~/.m2/wrapper/dists -name "apache-maven-*-bin.zip" -exec sha256sum {} \;
+      - name: Caching Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('qwas-action/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Build Spring Boot App
-        run: ./mvnw clean package
+      - name: Building plugin with Maven
+        run: pwd && ./mvnw clean package
+        working-directory: qwas-action
 
-      - name: Run Spring Boot App
-        run: java -jar ./target/GitHubActionsQWas-0.0.1-SNAPSHOT.jar
+      - name: Spinning up Qualys WAS Scan Plugin
+        run: java -jar ./target/github-was-action.jar
         id: run-app
+        working-directory: qwas-action
         env:
           API_SERVER: ${{ vars.API_SERVER }}
           AUTH_TYPE: ${{ vars.AUTH_TYPE }}
@@ -77,14 +75,13 @@ jobs:
           SEND_MAIL: ${{ vars.SEND_MAIL }}
         continue-on-error: true
 
-      - name: Upload Scan Report
+      - name: Uploading Qualys WAS Scan Result
         uses: actions/upload-artifact@v4
         with:
           name: Qualys_WAS_Scan_Result
-          path: ./outputs
-          if-no-files-found: ignore
+          path: qwas-action/outputs/
           retention-days: 7
 
-      - name: Check build status
+      - name: Checking for Qualys WAS Scan Plugin Failure
         if: steps.run-app.outcome != 'success'
         run: exit 1
