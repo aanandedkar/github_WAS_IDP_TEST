@@ -80,7 +80,7 @@ jobs:
         with:
           name: Qualys_WAS_Scan_Result
           path: qwas-action/outputs/
-          retention-days: 1
+          retention-days: 1 
 
       - name: Checking for Qualys WAS Scan Plugin Failure
         if: steps.run-app.outcome != 'success'
